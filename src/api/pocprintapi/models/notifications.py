@@ -1,12 +1,43 @@
+import uuid
+
 from datetime import datetime
+from typing import Union, List
 
 class NotificationMessage:
-    def __init__(self, title: str, body: str, body_type: str, origin: str, timestamp: datetime):
-        self.title = title
-        self.body = body
-        self.body_type = body_type
-        self.origin = origin
-        self.timestamp = timestamp
+    def __init__(self, title: str, body: str, body_type: str, origin: str, timestamp: Union[str, datetime]):
+        self.id: uuid.UUID = uuid.uuid4()
+        self.title: str = title
+        self.body: str = body
+        self.body_type: str = body_type
+        self.origin: str = origin
+
+        if timestamp is None or timestamp is datetime:
+            self.timestamp: datetime = timestamp
+        else:
+            self.timestamp: datetime = datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S")
 
     def __str__(self):
         return f"origin: {self.origin}, title: {self.title}"
+    
+    def validate(self) -> List[str]:
+        errors = []
+
+        if self._is_none_or_empty(self.title):
+            errors.append("Invalid 'title'")
+
+        if self._is_none_or_empty(self.body):
+            errors.append("Invalid 'body'")
+
+        if self._is_none_or_empty(self.body_type):
+            errors.append("Invalid 'body type'")
+
+        if self._is_none_or_empty(self.origin):
+            errors.append("Invalid 'origin'")
+
+        if self.timestamp is None:
+            errors.append("Invalid 'timestamp'")
+
+        return errors
+
+    def _is_none_or_empty(self, string: str) -> bool:
+        return string is None or string.strip() == ""
