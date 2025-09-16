@@ -11,7 +11,7 @@ class NotificationMessage:
         self.body_type: str = body_type
         self.origin: str = origin
 
-        if timestamp is None or timestamp is datetime:
+        if timestamp is None or isinstance(timestamp, datetime):
             self.timestamp: datetime = timestamp
         else:
             self.timestamp: datetime = datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S")
