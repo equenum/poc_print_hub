@@ -19,6 +19,16 @@ class NotificationMessage:
     def __str__(self):
         return f"origin: {self.origin}, title: {self.title}"
     
+    def to_dict(self):
+        return {
+            "id": str(self.id),
+            "title": self.title,
+            "body": self.body,
+            "bodyType": self.body_type,
+            "origin": self.origin,
+            "timestamp": str(self.timestamp)
+        }
+    
     def validate(self) -> List[str]:
         errors = []
 
