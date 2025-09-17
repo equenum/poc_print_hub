@@ -33,19 +33,22 @@ class NotificationMessage:
         errors = []
 
         if self._is_none_or_empty(self.title):
-            errors.append("Invalid 'title'")
+            errors.append("Required: 'title'")
 
         if self._is_none_or_empty(self.body):
-            errors.append("Invalid 'body'")
+            errors.append("Required: 'body'")
 
         if self._is_none_or_empty(self.body_type):
-            errors.append("Invalid 'body type'")
+            errors.append("Required: 'bodyType'")
+
+        if not self._is_none_or_empty(self.body_type) and self.body_type not in [ "PlainText", "KeyValue"]:
+            errors.append("Invalid 'bodyType': should be 'PlainText' or 'KeyValue'")
 
         if self._is_none_or_empty(self.origin):
-            errors.append("Invalid 'origin'")
+            errors.append("Required: 'origin'")
 
         if self.timestamp is None:
-            errors.append("Invalid 'timestamp'")
+            errors.append("Required: 'timestamp'")
 
         return errors
 
