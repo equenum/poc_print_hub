@@ -151,7 +151,10 @@ class PrintService:
             channel.basic_publish(
                 exchange="",
                 routing_key=settings.POC_PRINT_HUB_RABBIT_MQ_QUEUE_NAME,
-                body=json.dumps(message.to_dict())
+                body=json.dumps(message.to_dict()),
+                properties=pika.BasicProperties(
+                    delivery_mode=pika.DeliveryMode.Persistent
+                )
             )
         finally:
             if connection is not None:
