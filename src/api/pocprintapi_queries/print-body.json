@@ -1,7 +1,7 @@
 {
   "title": "test-title",
-  "body": "test-body",
-  "bodyType": "test-body-type",
+  "body": "{ \"prop1\": \"value1\", \"prop2\": \"value2\" }",
+  "bodyType": "KeyValue",
   "origin": "test-origin",
   "timestamp": "2025-01-01 00:01:00"
 }
