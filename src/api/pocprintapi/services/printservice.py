@@ -11,7 +11,7 @@ class PrintService:
     MIN_FEED_N: int = 5
     MAX_FEED_N: int = 255
 
-    def print(self, request_body: bytes) -> Response:
+    def publish(self, request_body: bytes) -> Response:
         """Publishes notification message to RabbitMQ"""
         body_dict = json.loads(request_body)
 
@@ -31,7 +31,11 @@ class PrintService:
             )
         
         try:
-            self._publish_message(message)
+            self._publish_message(
+                message,
+                settings.POC_PRINT_HUB_RABBIT_MQ_QUEUE_NAME,
+                settings.POC_PRINT_HUB_RABBIT_MQ_QUEUE_DURABLE
+            )
         except Exception as ex:
             return Response(
                 f"Failed to publish message to RabbitMQ, error: {ex}", 
@@ -128,15 +132,13 @@ class PrintService:
             status.HTTP_200_OK
         )
     
-    def _publish_message(self, message: NotificationMessage) -> None:
-        credentials = pika.PlainCredentials(
-            settings.POC_PRINT_HUB_RABBIT_MQ_USERNAME, 
-            settings.POC_PRINT_HUB_RABBIT_MQ_PASSWORD
-        )
-        
+    def _publish_message(self, message: NotificationMessage, queue_name: str, queue_durable: bool) -> None:
         parameters = pika.ConnectionParameters(
             host=settings.POC_PRINT_HUB_RABBIT_MQ_HOST,
-            credentials=credentials
+            credentials=pika.PlainCredentials(
+                settings.POC_PRINT_HUB_RABBIT_MQ_USERNAME, 
+                settings.POC_PRINT_HUB_RABBIT_MQ_PASSWORD
+            )
         )
 
         try:
@@ -144,13 +146,13 @@ class PrintService:
             channel = connection.channel()
 
             channel.queue_declare(
-                queue=settings.POC_PRINT_HUB_RABBIT_MQ_QUEUE_NAME, 
-                durable=settings.POC_PRINT_HUB_RABBIT_MQ_QUEUE_DURABLE
+                queue=queue_name, 
+                durable=queue_durable
             )
 
             channel.basic_publish(
                 exchange="",
-                routing_key=settings.POC_PRINT_HUB_RABBIT_MQ_QUEUE_NAME,
+                routing_key=queue_name,
                 body=json.dumps(message.to_dict()),
                 properties=pika.BasicProperties(
                     delivery_mode=pika.DeliveryMode.Persistent
@@ -158,5 +160,4 @@ class PrintService:
             )
         finally:
             if connection is not None:
-                connection.close()    
-        
+                connection.close()

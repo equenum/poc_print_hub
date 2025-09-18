@@ -5,8 +5,8 @@ from rest_framework.decorators import api_view
 from pocprintapi.services.printservice import PrintService
 
 @api_view(['POST'])
-def print(request: HttpRequest):
-    return PrintService().print(request.body)
+def publish(request: HttpRequest):
+    return PrintService().publish(request.body)
 
 @api_view(['GET'])
 def status(request: HttpRequest):
