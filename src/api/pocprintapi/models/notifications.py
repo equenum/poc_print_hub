@@ -2,6 +2,7 @@ import uuid
 
 from datetime import datetime
 from typing import Union, List
+from .constants import NotificationBodyType
 
 class NotificationMessage:
     def __init__(self, title: str, body: str, body_type: str, origin: str, timestamp: Union[str, datetime]):
@@ -41,7 +42,7 @@ class NotificationMessage:
         if self._is_none_or_empty(self.body_type):
             errors.append("Required: 'bodyType'")
 
-        if not self._is_none_or_empty(self.body_type) and self.body_type not in [ "PlainText", "KeyValue"]:
+        if not self._is_none_or_empty(self.body_type) and self.body_type.upper() not in NotificationBodyType.string_values():
             errors.append("Invalid 'bodyType': should be 'PlainText' or 'KeyValue'")
 
         if self._is_none_or_empty(self.origin):
