@@ -5,8 +5,8 @@ from typing import Union, List
 from .constants import NotificationBodyType
 
 class NotificationMessage:
-    def __init__(self, title: str, body: str, body_type: str, origin: str, timestamp: Union[str, datetime]):
-        self.id: uuid.UUID = uuid.uuid4()
+    def __init__(self, id: uuid.UUID, title: str, body: str, body_type: str, origin: str, timestamp: Union[str, datetime]):
+        self.id: uuid.UUID = id
         self.title: str = title
         self.body: str = body
         self.body_type: str = body_type
@@ -19,6 +19,17 @@ class NotificationMessage:
 
     def __str__(self):
         return f"origin: {self.origin}, title: {self.title}"
+    
+    @staticmethod
+    def from_json(json_dict):
+        return NotificationMessage(
+            json_dict.get("id"),
+            json_dict.get("title"),
+            json_dict.get("body"),
+            json_dict.get("bodyType"),
+            json_dict.get("origin"),
+            json_dict.get("timestamp")
+        )
     
     def to_dict(self):
         return {

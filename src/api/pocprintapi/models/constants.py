@@ -3,7 +3,8 @@ from enum import Enum
 class NotificationBodyType(Enum):
     PLAINTEXT = 1
     KEYVALUE = 2
-
+    
+    @staticmethod
     def string_values():
         return [
             NotificationBodyType.PLAINTEXT.name,
