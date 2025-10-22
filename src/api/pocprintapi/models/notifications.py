@@ -2,7 +2,7 @@ import uuid
 
 from datetime import datetime
 from typing import Union, List
-from .constants import NotificationBodyType
+from pocprintapi.models.constants import NotificationBodyType
 
 class NotificationMessage:
     def __init__(self, id: uuid.UUID, title: str, body: str, body_type: str, origin: str, timestamp: Union[str, datetime]):

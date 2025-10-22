@@ -1,11 +1,14 @@
 import json
 import pika
+import uuid
 
+from typing import List
 from django.conf import settings
 from escpos import printer
 from rest_framework import status
 from rest_framework.response import Response
 from pocprintapi.models.notifications import NotificationMessage
+from pocprintapi.models.constants import NotificationBodyType
 
 class PrintService:
     MIN_FEED_N: int = 5
@@ -15,13 +18,8 @@ class PrintService:
         """Publishes notification message to RabbitMQ"""
         body_dict = json.loads(request_body)
 
-        message = NotificationMessage(
-            body_dict.get("title"),
-            body_dict.get("body"),
-            body_dict.get("bodyType"),
-            body_dict.get("origin"),
-            body_dict.get("timestamp")
-        )
+        message = NotificationMessage.from_json(body_dict)
+        message.id = uuid.uuid4()
         
         errors = message.validate()
         if len(errors) > 0:
@@ -161,3 +159,12 @@ class PrintService:
         finally:
             if connection is not None:
                 connection.close()
+
+    def _build_connection_parameters(self) -> pika.ConnectionParameters:
+        return pika.ConnectionParameters(
+            host=settings.POC_PRINT_HUB_RABBIT_MQ_HOST,
+            credentials=pika.PlainCredentials(
+                settings.POC_PRINT_HUB_RABBIT_MQ_USERNAME, 
+                settings.POC_PRINT_HUB_RABBIT_MQ_PASSWORD
+            )
+        )
