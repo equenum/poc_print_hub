@@ -23,3 +23,7 @@ def feed(request: HttpRequest):
 @api_view(['POST'])
 def cut(request: HttpRequest):
     return PrintService().cut()
+
+@api_view(['POST'])
+def republish(request: HttpRequest):
+    return PrintService().republish_dead_queue_messages()

@@ -7,5 +7,6 @@ urlpatterns = [
     path('publish', endpoints.publish, name='publish'),
     path('status', endpoints.status, name='status'),
     path('feed', endpoints.feed, name='feed'),
-    path('cut', endpoints.cut, name='cut')
+    path('cut', endpoints.cut, name='cut'),
+    path('republish', endpoints.republish, name='republish')
 ]

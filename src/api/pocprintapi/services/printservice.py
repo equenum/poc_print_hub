@@ -129,15 +129,197 @@ class PrintService:
             f"Command 'Cut' successfully sent to printer", 
             status.HTTP_200_OK
         )
-    
-    def _publish_message(self, message: NotificationMessage, queue_name: str, queue_durable: bool) -> None:
-        parameters = pika.ConnectionParameters(
-            host=settings.POC_PRINT_HUB_RABBIT_MQ_HOST,
-            credentials=pika.PlainCredentials(
-                settings.POC_PRINT_HUB_RABBIT_MQ_USERNAME, 
-                settings.POC_PRINT_HUB_RABBIT_MQ_PASSWORD
+
+    def process_queue_messages(self) -> None:
+        if not self._is_printer_available():
+            print(f'Failed to process messages, error: printer not available')
+            return
+        
+        parameters = self._build_connection_parameters()
+
+        try:
+            connection = pika.BlockingConnection(parameters)
+            channel = connection.channel()
+
+            print_queue = channel.queue_declare(
+                queue=settings.POC_PRINT_HUB_RABBIT_MQ_QUEUE_NAME, 
+                durable=settings.POC_PRINT_HUB_RABBIT_MQ_QUEUE_DURABLE
             )
-        )
+
+            message_count = print_queue.method.message_count
+            processed_message_count = 0
+
+            if message_count == 0:
+                print(f"Nothing to process: {settings.POC_PRINT_HUB_RABBIT_MQ_QUEUE_NAME} queue is empty")
+                return
+
+            channel.queue_declare(
+                queue=settings.POC_PRINT_HUB_RABBIT_MQ_DEAD_QUEUE_NAME, 
+                durable=settings.POC_PRINT_HUB_RABBIT_MQ_DEAD_QUEUE_DURABLE
+            )
+
+            for method_frame, properties, body in channel.consume(settings.POC_PRINT_HUB_RABBIT_MQ_QUEUE_NAME):
+                try:
+                    self._print_message(body)
+                except Exception as ex:
+                    print(
+                        f"Failed to process {settings.POC_PRINT_HUB_RABBIT_MQ_QUEUE_NAME} queue message: {ex}. "\
+                        f"Delivery properties: {method_frame}. Publishing to error queue."
+                    )
+                    channel.basic_publish(
+                        exchange="",
+                        routing_key=settings.POC_PRINT_HUB_RABBIT_MQ_DEAD_QUEUE_NAME,
+                        body=json.dumps(json.loads(body)),
+                        properties=pika.BasicProperties(
+                            delivery_mode=pika.DeliveryMode.Persistent
+                        )
+                    )
+
+                channel.basic_ack(method_frame.delivery_tag)
+
+                processed_message_count += 1
+                message_count -= 1
+
+                if message_count == 0 or processed_message_count >= settings.POC_PRINT_HUB_RABBIT_MQ_QUEUE_BATCH_SIZE:
+                    break
+            
+            channel.cancel()
+        finally:
+            if connection is not None:
+                channel.close()
+                connection.close()
+
+    def republish_dead_queue_messages(self) -> Response:
+        parameters = self._build_connection_parameters()
+
+        try:
+            connection = pika.BlockingConnection(parameters)
+            channel = connection.channel()
+
+            dead_letter_queue = channel.queue_declare(
+                queue=settings.POC_PRINT_HUB_RABBIT_MQ_DEAD_QUEUE_NAME, 
+                durable=settings.POC_PRINT_HUB_RABBIT_MQ_DEAD_QUEUE_DURABLE
+            )
+
+            message_count = dead_letter_queue.method.message_count
+            republished_message_count = 0
+
+            if message_count == 0:
+                return Response(
+                    f"Nothing to process: {settings.POC_PRINT_HUB_RABBIT_MQ_DEAD_QUEUE_NAME} queue is empty", 
+                    status.HTTP_200_OK
+            )
+
+            channel.queue_declare(
+                queue=settings.POC_PRINT_HUB_RABBIT_MQ_QUEUE_NAME, 
+                durable=settings.POC_PRINT_HUB_RABBIT_MQ_QUEUE_DURABLE
+            )
+
+            failed_messages = []
+
+            for method_frame, properties, body in channel.consume(settings.POC_PRINT_HUB_RABBIT_MQ_DEAD_QUEUE_NAME):
+                try:
+                    channel.basic_publish(
+                        exchange="",
+                        routing_key=settings.POC_PRINT_HUB_RABBIT_MQ_QUEUE_NAME,
+                        body=json.dumps(json.loads(body)),
+                        properties=pika.BasicProperties(
+                            delivery_mode=pika.DeliveryMode.Persistent
+                        )
+                    )
+                    republished_message_count += 1
+                except Exception as ex:
+                    print(
+                        f"Failed to process {settings.POC_PRINT_HUB_RABBIT_MQ_DEAD_QUEUE_NAME} queue message: {ex}. "\
+                        f"Delivery properties: {method_frame}. Republishing to error queue."
+                    )
+                    failed_messages.append(json.dumps(json.loads(body)))
+
+                channel.basic_ack(method_frame.delivery_tag)
+                message_count -= 1
+
+                if message_count == 0:
+                    break
+
+            for message in failed_messages:
+                channel.basic_publish(
+                    exchange="",
+                    routing_key=settings.POC_PRINT_HUB_RABBIT_MQ_DEAD_QUEUE_NAME,
+                    body=message,
+                    properties=pika.BasicProperties(
+                        delivery_mode=pika.DeliveryMode.Persistent
+                    )
+                )
+
+            return Response(
+                f"Command 'Republish Dead Letter messages' completed. "\
+                f"Republished: {republished_message_count}, failed: {len(failed_messages)}.", 
+                status.HTTP_200_OK
+            )
+        finally:
+            if connection is not None:
+                channel.close()
+                connection.close()
+
+    def _print_message(self, body) -> None:
+        body_dict = json.loads(body)
+        message = NotificationMessage.from_json(body_dict)
+
+        try:
+            net_print = printer.Network(settings.POC_PRINT_HUB_PRINTER_HOST)
+
+            # header
+            net_print.textln(settings.POC_PRINT_HUB_PRINTER_MESSAGE_SEPARATOR)
+            net_print.textln(f"title: {message.title}")
+
+            # body
+            match message.body_type.upper():
+                case NotificationBodyType.KEYVALUE.name:
+                    for body_print_line in self._build_key_value_body_messages(message):
+                        net_print.textln(body_print_line)
+                case NotificationBodyType.PLAINTEXT.name:
+                    net_print.textln(self._build_plain_text_body_message(message))
+                case _:
+                    net_print.textln(self._build_plain_text_body_message(message))
+            
+            # attributes
+            net_print.textln(f"origin: {message.origin}")
+            net_print.textln(f"timestamp: {message.timestamp}")
+        finally:
+            if net_print is not None:
+                net_print.close()
+
+    def _is_printer_available(self) -> bool:
+        try:
+            net_print = printer.Network(settings.POC_PRINT_HUB_PRINTER_HOST)
+            is_online = net_print.is_online()
+
+            if not settings.POC_PRINT_HUB_PRINTER_CHECK_PAPER_STATUS:
+                return is_online
+
+            is_paper_plenty = net_print.paper_status() == 2 # Plenty (Paper is adequate)
+            return is_online and is_paper_plenty
+        except Exception as ex:
+            print(f"Failed to fetch printer availability status, error: {ex}")
+            return False
+        finally:
+            if net_print is not None:
+                net_print.close()
+
+    def _build_key_value_body_messages(self, message: NotificationMessage) -> List[str]:
+        body_print_lines = []
+        body_messages = json.loads(message.body)
+
+        for key, value in body_messages.items():
+            body_print_lines.append(f"{key}: {value}")
+
+        return body_print_lines
+    
+    def _build_plain_text_body_message(self, message: NotificationMessage) -> str:
+        return f"body: {message.body}"
+
+    def _publish_message(self, message: NotificationMessage, queue_name: str, queue_durable: bool) -> None:
+        parameters = self._build_connection_parameters()
 
         try:
             connection = pika.BlockingConnection(parameters)
