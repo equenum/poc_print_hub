@@ -7,6 +7,8 @@ load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('SECRET_KEY')
 DEBUG = os.environ.get('DEBUG') == 'True'
+POC_PRINT_HUB_TENANT_AUTH_ENABLED = os.environ.get('POC_PRINT_HUB_TENANT_AUTH_ENABLED') == 'True'
+
 
 # rabbit mq
 POC_PRINT_HUB_RABBIT_MQ_HOST = os.environ.get('POC_PRINT_HUB_RABBIT_MQ_HOST')
@@ -34,7 +36,7 @@ POC_PRINT_HUB_PRINTER_CHECK_PAPER_STATUS = os.environ.get('POC_PRINT_HUB_PRINTER
 
 # celery
 CELERY_BROKER_URL = f"amqp://{POC_PRINT_HUB_RABBIT_MQ_USERNAME}:{POC_PRINT_HUB_RABBIT_MQ_PASSWORD}@{POC_PRINT_HUB_RABBIT_MQ_HOST}:5672//"
-POC_PRINT_HUB_QUEUE_TIME_LIMIT_SEC = int(os.environ.get('POC_PRINT_HUB_QUEUE_TIME_LIMIT_SEC')) # same for both queues
+POC_PRINT_HUB_QUEUE_TIME_LIMIT_SEC = int(os.environ.get('POC_PRINT_HUB_QUEUE_TIME_LIMIT_SEC'))
 
 ALLOWED_HOSTS = []
 
@@ -46,6 +48,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'pocprintapi',
 ]
 
 MIDDLEWARE = [
@@ -85,6 +88,9 @@ DATABASES = {
         "PASSWORD": os.environ.get('DATABASES_POSTGRESQL_PASSWORD'),
         "HOST": os.environ.get('DATABASES_POSTGRESQL_HOST'),
         "PORT": os.environ.get('DATABASES_POSTGRESQL_PORT'),
+        'OPTIONS': {
+            'options': '-c search_path=pocprinthub,public'
+        },
     }
 }
 
