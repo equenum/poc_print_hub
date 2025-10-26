@@ -1,5 +1,6 @@
-Django==5.2.6
+Django==5.2.7
+django_model_utils==5.0.0
 djangorestframework==3.16.1
 pika==1.3.2
-python-dotenv==1.1.1
+python-dotenv==1.2.1
 python_escpos==3.1
