@@ -8,6 +8,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('SECRET_KEY')
 DEBUG = os.environ.get('DEBUG') == 'True'
 POC_PRINT_HUB_TENANT_AUTH_ENABLED = os.environ.get('POC_PRINT_HUB_TENANT_AUTH_ENABLED') == 'True'
+POC_PRINT_HUB_TENANT_ID_HEADER = 'PPH-Tenant-Id'
+POC_PRINT_HUB_TENANT_TOKEN_HEADER = 'PPH-Tenant-Token'
 
 
 # rabbit mq

@@ -7,8 +7,7 @@ from django.conf import settings
 from escpos import printer
 from rest_framework import status
 from rest_framework.response import Response
-from pocprintapi.models.notifications import NotificationMessage
-from pocprintapi.models.constants import NotificationBodyType
+from pocprintapi.models import NotificationMessage, NotificationBodyType
 
 class PrintService:
     MIN_FEED_N: int = 5

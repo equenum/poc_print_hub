@@ -81,18 +81,33 @@ class NotificationBodyType(Enum):
     @staticmethod
     def string_values():
         return [
-            NotificationBodyType.PLAINTEXT.name,
-            NotificationBodyType.KEYVALUE.name
+            NotificationBodyType.PLAINTEXT.name.upper(),
+            NotificationBodyType.KEYVALUE.name.upper()
+        ]
+    
+class TenantRole(models.TextChoices):
+    ADMIN = "ADMIN", "Admin"
+    USER = "USER", "User"
+
+    @staticmethod
+    def string_values():
+        return [
+            TenantRole.ADMIN.name.upper(),
+            TenantRole.USER.name.upper()
         ]
 
 class TenantAuthConfig(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     tenant_id = models.TextField(unique=True)
+    role = models.TextField(
+        choices=TenantRole.choices,
+        default=TenantRole.USER
+    )
     token = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.tenant_id
+        return f"{self.role} - {self.tenant_id}"
     
 admin.site.register(TenantAuthConfig)
