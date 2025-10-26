@@ -10,6 +10,8 @@ from typing import Union, List
 from enum import Enum
 from django.db import models
 from django.contrib import admin
+from django.contrib.auth.hashers import make_password, check_password
+from model_utils.tracker import FieldTracker
 
 class NotificationMessage:
     def __init__(self, id: uuid.UUID, title: str, body: str, body_type: str, origin: str, timestamp: Union[str, datetime]):
@@ -106,6 +108,15 @@ class TenantAuthConfig(models.Model):
     token = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    tracker = FieldTracker()
+
+    def save(self, *args, **kwargs):
+        if not self.pk or self.tracker.has_changed('token'):
+            self.token = make_password(self.token)
+        super().save(*args, **kwargs)
+
+    def check_token(self, raw_token: str):
+        return check_password(raw_token, self.token)
 
     def __str__(self):
         return f"{self.role} - {self.tenant_id}"

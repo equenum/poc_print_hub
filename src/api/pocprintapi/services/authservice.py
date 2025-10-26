@@ -18,7 +18,7 @@ class AuthService:
         try:
             tenant = TenantAuthConfig.objects.get(tenant_id=target_tenant_id)
 
-            if tenant.token != tenant_token:
+            if not tenant.check_token(tenant_token):
                 return False
 
             if self._is_none_or_empty(tenant.role):
