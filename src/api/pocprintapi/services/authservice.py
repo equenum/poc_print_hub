@@ -3,7 +3,7 @@ from pocprintapi.models import TenantAuthConfig, TenantRole
 from django.conf import settings
 
 class AuthService:
-    def is_authorized(self, target_tenant_id: str, tenant_token:str, allowed_roles: List[TenantRole]) -> bool:
+    def is_authorized(self, target_tenant_id: str, tenant_token: str, allowed_roles: List[TenantRole]) -> bool:
         if not settings.POC_PRINT_HUB_TENANT_AUTH_ENABLED:
             return True
         

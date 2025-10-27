@@ -130,6 +130,7 @@ class PrintService:
         )
 
     def process_queue_messages(self) -> None:
+        """Processes all messages from the RabbitMQ print queue"""
         if not self._is_printer_available():
             print(f'Failed to process messages, error: printer not available')
             return
@@ -189,6 +190,7 @@ class PrintService:
                 connection.close()
 
     def republish_dead_queue_messages(self) -> Response:
+        """Republishes all messages from the error to print RabbitMQ queue"""
         parameters = self._build_connection_parameters()
 
         try:

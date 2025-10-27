@@ -1,11 +1,11 @@
 import os
 
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'pocprintapi.settings')
+
 from django.conf import settings
 from celery import Celery
 from celery.exceptions import MaxRetriesExceededError
 from pocprintapi.services.printservice import PrintService
-
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'pocprintapi.settings')
 
 app = Celery('pocprintapi')
 app.config_from_object('django.conf:settings', namespace='CELERY')
