@@ -79,7 +79,7 @@ _(Optional) n_times - number of times to feed (5 <= n_times <= 255); defaults to
 curl \
     -X POST http://127.0.0.1:8000/cut \
     -H "PPH-Tenant-Id: admin-test-id" \
-    -H "PPH-Tenant-Token: admin-test-token" \
+    -H "PPH-Tenant-Token: admin-test-token"
 ```
 
 #### Non-Admin
@@ -100,7 +100,7 @@ curl \
 curl \
     -X POST http://127.0.0.1:8000/republish \
     -H "PPH-Tenant-Id: admin-test-id" \
-    -H "PPH-Tenant-Token: admin-test-token" \
+    -H "PPH-Tenant-Token: admin-test-token"
 ```
 
 #### Non-Admin
