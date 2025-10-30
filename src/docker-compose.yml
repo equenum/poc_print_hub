@@ -1,0 +1,23 @@
+services:
+  backend:
+    build:
+      context: ./api
+    command: bash -c "
+        python manage.py migrate
+        && python manage.py createsuperuser --no-input
+        && gunicorn --bind 0.0.0.0:8000 --workers 3 pocprintapi.wsgi:application
+        && celery -A pocprintapi worker -l INFO
+        && celery -A pocprintapi beat -l info
+      "
+    container_name: printhub-api
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      - POC_PRINT_HUB_RABBIT_MQ_HOST=
+      - POC_PRINT_HUB_RABBIT_MQ_USERNAME=
+      - POC_PRINT_HUB_RABBIT_MQ_PASSWORD=
+      - POC_PRINT_HUB_PRINTER_HOST=
+      - DATABASES_POSTGRESQL_USER=
+      - DATABASES_POSTGRESQL_PASSWORD=
+      - DATABASES_POSTGRESQL_HOST=
