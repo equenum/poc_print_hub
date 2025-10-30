@@ -7,8 +7,11 @@ load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('SECRET_KEY', 'by-using-default-secrets-I-am-running-away-from-my-responsibilities-and-it-feels-good') # - Michael Scott =)
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
+DJANGO_SUPERUSER_USERNAME = os.environ.get('DJANGO_SUPERUSER_USERNAME', 'admin')
+DJANGO_SUPERUSER_PASSWORD = os.environ.get('DJANGO_SUPERUSER_PASSWORD', 'admin')
+DJANGO_SUPERUSER_EMAIL = os.environ.get('DJANGO_SUPERUSER_EMAIL', '')
 
-POC_PRINT_HUB_TENANT_AUTH_ENABLED = os.environ.get('POC_PRINT_HUB_TENANT_AUTH_ENABLED', 'False') == 'True'
+POC_PRINT_HUB_TENANT_AUTH_ENABLED = os.environ.get('POC_PRINT_HUB_TENANT_AUTH_ENABLED', 'True') == 'True'
 POC_PRINT_HUB_TENANT_ID_HEADER = 'PPH-Tenant-Id'
 POC_PRINT_HUB_TENANT_TOKEN_HEADER = 'PPH-Tenant-Token'
 
