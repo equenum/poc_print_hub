@@ -20,6 +20,7 @@ services:
       - DATABASES_POSTGRESQL_USER=
       - DATABASES_POSTGRESQL_PASSWORD=
       - DATABASES_POSTGRESQL_HOST=
+      - DJANGO_ALLOWED_HOSTS=127.0.0.1    # comma separated for multiple
   celery_beat:
     build:
       context: ./api
@@ -27,6 +28,11 @@ services:
     command: "celery -A pocprintapi beat -l info"
     container_name: printhub-celery-beat
     restart: always
+    environment:
+      - POC_PRINT_HUB_RABBIT_MQ_HOST=
+      - POC_PRINT_HUB_RABBIT_MQ_USERNAME=
+      - POC_PRINT_HUB_RABBIT_MQ_PASSWORD=
+      - POC_PRINT_HUB_PRINTER_HOST=
   celery_worker:
     build:
       context: ./api
@@ -34,3 +40,8 @@ services:
     command: "celery -A pocprintapi worker -l INFO"
     container_name: printhub-celery-worker
     restart: always
+    environment:
+      - POC_PRINT_HUB_RABBIT_MQ_HOST=
+      - POC_PRINT_HUB_RABBIT_MQ_USERNAME=
+      - POC_PRINT_HUB_RABBIT_MQ_PASSWORD=
+      - POC_PRINT_HUB_PRINTER_HOST=
