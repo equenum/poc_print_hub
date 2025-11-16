@@ -23,7 +23,10 @@ class PrintService:
         errors = message.validate()
         if len(errors) > 0:
             return Response(
-                f"Invalid request, errors: {", ".join(errors)}", 
+                {
+                    "message": "Invalid request",
+                    "errors": ", ".join(errors)
+                }, 
                 status.HTTP_400_BAD_REQUEST
             )
         
@@ -35,12 +38,17 @@ class PrintService:
             )
         except Exception as ex:
             return Response(
-                f"Failed to publish message to RabbitMQ, error: {ex}", 
+                {
+                    "message": "Failed to publish message to RabbitMQ",
+                    "errors": f"{ex}"
+                }, 
                 status.HTTP_500_INTERNAL_SERVER_ERROR
             )
         
         return Response(
-            f"Message id: {message.id}", 
+            {
+                "messageId": message.id
+            }, 
             status.HTTP_200_OK
         )
     
@@ -65,7 +73,10 @@ class PrintService:
 
         except Exception as ex:
             return Response(
-                f"Failed to fetch printer status, error: {ex}", 
+                {
+                    "message": "Failed to fetch printer status",
+                    "errors": f"{ex}"
+                }, 
                 status.HTTP_500_INTERNAL_SERVER_ERROR
             )
         finally:
@@ -73,7 +84,11 @@ class PrintService:
                 net_print.close()
 
         return Response(
-            f"Online: {is_online}, Paper status: {paper_status_text}", 
+            {
+                "name": "RP326",
+                "isOnline": is_online,
+                "paperStatus": paper_status_text
+            }, 
             status.HTTP_200_OK
         )
 
@@ -83,13 +98,19 @@ class PrintService:
             n_times_int = int(n_times)
         except ValueError:
             return Response(
-                f"Invalid 'n_times' type: should be 'int'", 
+                {
+                    "message": "Invalid request",
+                    "errors": "Invalid 'n_times' type: should be 'int'"
+                }, 
                 status.HTTP_400_BAD_REQUEST
             )
         
         if n_times_int < self.MIN_FEED_N or n_times_int > self.MAX_FEED_N:
             return Response(
-                f"'n_times' out of range: should be {self.MIN_FEED_N} <= x <= {self.MAX_FEED_N}", 
+                {
+                    "message": "Invalid request",
+                    "errors": f"'n_times' out of range: should be {self.MIN_FEED_N} <= x <= {self.MAX_FEED_N}"
+                }, 
                 status.HTTP_400_BAD_REQUEST
             )
 
@@ -98,7 +119,10 @@ class PrintService:
             net_print.print_and_feed(n_times_int)
         except Exception as ex:
             return Response(
-                f"Failed to send 'Feed' command to printer, error: {ex}", 
+                {
+                    "message": "Failed to send 'Feed' command to printer",
+                    "errors": f"{ex}"
+                }, 
                 status.HTTP_500_INTERNAL_SERVER_ERROR
             )
         finally:
@@ -106,7 +130,9 @@ class PrintService:
                 net_print.close()
 
         return Response(
-            f"Command 'Feed' successfully sent to printer", 
+            {
+                "message": "Command 'Feed' successfully sent to printer"
+            }, 
             status.HTTP_200_OK
         )
 
@@ -117,7 +143,10 @@ class PrintService:
             net_print.cut()
         except Exception as ex:
             return Response(
-                f"Failed to send 'Cut' command to printer, error: {ex}", 
+                {
+                    "message": "Failed to send 'Cut' command to printer",
+                    "errors": f"{ex}"
+                }, 
                 status.HTTP_500_INTERNAL_SERVER_ERROR
             )
         finally:
@@ -125,7 +154,9 @@ class PrintService:
                 net_print.close()
 
         return Response(
-            f"Command 'Cut' successfully sent to printer", 
+            {
+                "message": "Command 'Cut' successfully sent to printer"
+            }, 
             status.HTTP_200_OK
         )
 
@@ -207,7 +238,9 @@ class PrintService:
 
             if message_count == 0:
                 return Response(
-                    f"Nothing to process: {settings.POC_PRINT_HUB_RABBIT_MQ_DEAD_QUEUE_NAME} queue is empty", 
+                    {
+                        "message": f"Nothing to process: {settings.POC_PRINT_HUB_RABBIT_MQ_DEAD_QUEUE_NAME} queue is empty"
+                    }, 
                     status.HTTP_200_OK
             )
 
@@ -253,8 +286,11 @@ class PrintService:
                 )
 
             return Response(
-                f"Command 'Republish Dead Letter messages' completed. "\
-                f"Republished: {republished_message_count}, failed: {len(failed_messages)}.", 
+                {
+                    "message": 
+                        f"Command 'Republish Dead Letter messages' completed. "\
+                        f"Republished: {republished_message_count}, failed: {len(failed_messages)}."
+                }, 
                 status.HTTP_200_OK
             )
         finally:
