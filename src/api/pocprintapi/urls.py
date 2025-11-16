@@ -9,5 +9,6 @@ urlpatterns = [
     path('printer/cut', endpoints.cut, name='cut'),
     path('queues/publish', endpoints.publish, name='publish'),
     path('queues/republish', endpoints.republish, name='republish'),
-    path('queues/status', endpoints.queue_status, name='queuestatus')
+    path('queues/status', endpoints.queue_status, name='queuestatus'),
+    path('tenant/role', endpoints.tenant_role, name='tenantrole')
 ]

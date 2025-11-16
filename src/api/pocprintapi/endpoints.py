@@ -28,7 +28,7 @@ def status(request: HttpRequest):
 def feed(request: HttpRequest):
     if _is_request_authorized(request, [TenantRole.ADMIN]):
         body_dict = json.loads(request.body)
-        n_times = body_dict.get("n_times", "5")
+        n_times = body_dict.get("nTimes", "5")
         return PrintService().feed(n_times)
     
     return _response_unauthorized()
@@ -54,7 +54,14 @@ def queue_status(request: HttpRequest):
     
     return _response_unauthorized()
 
-# add endpoint to get tenant role
+@api_view(['POST'])
+def tenant_role(request: HttpRequest):
+    if _is_request_authorized(request, [TenantRole.ADMIN]):
+        body_dict = json.loads(request.body)
+        tenant_id = body_dict.get("tenantId")
+        return AuthService().get_tenant_role(tenant_id)
+    
+    return _response_unauthorized()
 
 def _is_request_authorized(request: HttpRequest, allowed_roles: List[str]):
     tenant_id = request.headers.get(settings.POC_PRINT_HUB_TENANT_ID_HEADER) 

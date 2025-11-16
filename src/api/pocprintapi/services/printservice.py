@@ -100,7 +100,7 @@ class PrintService:
             return Response(
                 {
                     "message": "Invalid request",
-                    "errors": "Invalid 'n_times' type: should be 'int'"
+                    "errors": "Invalid 'nTimes' type: should be 'int'"
                 }, 
                 status.HTTP_400_BAD_REQUEST
             )
@@ -109,7 +109,7 @@ class PrintService:
             return Response(
                 {
                     "message": "Invalid request",
-                    "errors": f"'n_times' out of range: should be {self.MIN_FEED_N} <= x <= {self.MAX_FEED_N}"
+                    "errors": f"'nTimes' out of range: should be {self.MIN_FEED_N} <= x <= {self.MAX_FEED_N}"
                 }, 
                 status.HTTP_400_BAD_REQUEST
             )
