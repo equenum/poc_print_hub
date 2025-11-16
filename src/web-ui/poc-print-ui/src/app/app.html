@@ -60,8 +60,15 @@
           Settings
         </h2>
         <div>Tenant authentication</div>
-        <input type="text" placeholder="Enter tenant id" class="input" />
-        <input type="password" placeholder="Enter tenant token" class="input" />
+        <div>
+          <input type="text" placeholder="Enter tenant id" class="input validator" maxlength="100" pattern=".*\S.*" />
+          <div id="tenant-id-hint" class="validator-hint hidden">Must not be whitespace</div>
+        </div>
+        <div>
+          <input type="password" placeholder="Enter tenant token" class="input validator" maxlength="1000"
+            pattern=".*\S.*" />
+          <div id="tenant-token-hint" class="validator-hint hidden">Must not be whitespace</div>
+        </div>
         <div class="card-actions justify-end pt-5">
           <button class="btn btn-primary">Save</button>
         </div>
@@ -80,14 +87,12 @@
         <div>Publish message for printing</div>
         <fieldset class="fieldset py-0!">
           <legend class="fieldset-legend">Message body type</legend>
-          <select class="select">
-            <option>Text</option>
-            <option>Key-Value</option>
+          <select class="select" [(ngModel)]="selectedBodyType">
+            <option *ngFor="let option of bodyTypeOptions" [ngValue]="option.value">{{ option.displayName }}</option>
           </select>
         </fieldset>
-        <textarea class="textarea w-full" placeholder="Enter message title"></textarea>
-        <textarea class="textarea w-full"
-          placeholder="Enter JSON message, e.g., {&quot;key&quot;: &quot;value&quot;}"></textarea>
+        <textarea class="textarea w-full" placeholder="Enter message title" maxlength="1000"></textarea>
+        <textarea class="textarea w-full" [placeholder]="getBodyTypePlaceholder()" maxlength="10000"></textarea>
         <div class="card-actions justify-end pt-5">
           <button class="btn btn-secondary">Reset</button>
           <button class="btn btn-primary">Send</button>
@@ -103,12 +108,19 @@
         <div>Feed printer paper `n` times</div>
         <fieldset class="fieldset py-0!">
           <legend class="fieldset-legend">Selector type</legend>
-          <select class="select">
-            <option>Slider</option>
-            <option>Custom</option>
+          <select class="select" [(ngModel)]="selectedFeedSelectorType">
+            <option *ngFor="let option of feedSelectorTypeOptions" [ngValue]="option.value">{{ option.displayName }}
+            </option>
           </select>
         </fieldset>
-        <input type="text" placeholder="Enter `n` times (5 to 255)" class="input" />
+        @if (selectedFeedSelectorType() == 'custom')
+        {
+        <input type="number" [(ngModel)]="selectedFeedTimes" class="input validator" required placeholder="Enter `n` times (5 to 255)" min="5" max="255"
+          title="Must be between be 5 to 255" />
+        <div class="validator-hint mt-0!">Must be between 5 to 255</div>
+        }
+        @if (selectedFeedSelectorType() == 'slider')
+        {
         <div class="w-full max-w-xs">
           <input type="range" min="25" max="250" value="50" class="range w-116" step="25" />
           <div class="flex justify-between px-3.5 mt-2 text-xs w-116">
@@ -136,6 +148,7 @@
             <span>10</span>
           </div>
         </div>
+        }
         <div class="card-actions justify-end pt-5">
           <button class="btn btn-secondary">Reset</button>
           <button class="btn btn-primary">Send</button>
