@@ -2,7 +2,7 @@ import json
 import pika
 import uuid
 
-from typing import List
+from typing import List, Tuple
 from django.conf import settings
 from escpos import printer
 from rest_framework import status
@@ -297,6 +297,45 @@ class PrintService:
             if connection is not None:
                 channel.close()
                 connection.close()
+
+    def get_queue_status(self) -> Response:
+        """Fetches queue status: is online, message count"""
+        print_queue_status = self._get_queue_message_count(settings.POC_PRINT_HUB_RABBIT_MQ_QUEUE_NAME)
+        dead_queue_status = self._get_queue_message_count(settings.POC_PRINT_HUB_RABBIT_MQ_DEAD_QUEUE_NAME)
+
+        return Response(
+            {
+                "print": {
+                    "isOnline": print_queue_status[0],
+                    "count": print_queue_status[1]
+                },
+                "deadLetter": {
+                    "isOnline": dead_queue_status[0],
+                    "count": dead_queue_status[1]
+                }
+            }, 
+            status.HTTP_200_OK
+        )
+
+    def _get_queue_message_count(self, queue_name: str) -> Tuple[bool, int]: # is success, count
+        parameters = self._build_connection_parameters()
+        message_count: int = 0
+
+        try:
+            connection = pika.BlockingConnection(parameters)
+            channel = connection.channel()
+
+            queue_info = channel.queue_declare(queue=queue_name, passive=True)
+            message_count = queue_info.method.message_count
+        except Exception as ex:
+            print(f"Failed to fetch {queue_name} queue status, error: {ex}")
+            return ( False, 0 )
+        finally:
+            if connection is not None:
+                channel.close()
+                connection.close()
+
+        return ( True, message_count )
 
     def _print_message(self, body) -> None:
         body_dict = json.loads(body)

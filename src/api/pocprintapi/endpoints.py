@@ -47,6 +47,15 @@ def republish(request: HttpRequest):
 
     return _response_unauthorized()
 
+@api_view(['GET'])
+def queue_status(request: HttpRequest):
+    if _is_request_authorized(request, [TenantRole.ADMIN]):
+        return PrintService().get_queue_status()
+    
+    return _response_unauthorized()
+
+# add endpoint to get tenant role
+
 def _is_request_authorized(request: HttpRequest, allowed_roles: List[str]):
     tenant_id = request.headers.get(settings.POC_PRINT_HUB_TENANT_ID_HEADER) 
     tenant_token = request.headers.get(settings.POC_PRINT_HUB_TENANT_TOKEN_HEADER) 
@@ -55,6 +64,8 @@ def _is_request_authorized(request: HttpRequest, allowed_roles: List[str]):
 
 def _response_unauthorized():
     return Response(
-        "Request Unauthorized", 
+        {
+            "message": "Request Unauthorized"
+        }, 
         response_status.HTTP_401_UNAUTHORIZED
     )

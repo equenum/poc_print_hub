@@ -4,9 +4,10 @@ from . import endpoints
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('publish', endpoints.publish, name='publish'),
-    path('status', endpoints.status, name='status'),
-    path('feed', endpoints.feed, name='feed'),
-    path('cut', endpoints.cut, name='cut'),
-    path('republish', endpoints.republish, name='republish')
+    path('printer/status', endpoints.status, name='status'),
+    path('printer/feed', endpoints.feed, name='feed'),
+    path('printer/cut', endpoints.cut, name='cut'),
+    path('queues/publish', endpoints.publish, name='publish'),
+    path('queues/republish', endpoints.republish, name='republish'),
+    path('queues/status', endpoints.queue_status, name='queuestatus')
 ]
