@@ -4,7 +4,7 @@
 
 ```shell
 curl \
-    -X POST http://127.0.0.1:8000/queues/publish \
+    -X POST http://127.0.0.1:8000/api/queues/publish \
     -H "Content-Type: application/json" \
     -H "PPH-Tenant-Id: admin-test-id" \
     -H "PPH-Tenant-Token: admin-test-token" \
@@ -15,7 +15,7 @@ curl \
 
 ```shell
 curl \
-    -X POST http://127.0.0.1:8000/queues/publish \
+    -X POST http://127.0.0.1:8000/api/queues/publish \
     -H "Content-Type: application/json" \
     -H "PPH-Tenant-Id: user-test-id" \
     -H "PPH-Tenant-Token: user-test-token" \
@@ -29,7 +29,7 @@ curl \
 
 ```shell
 curl \
-    -X GET http://127.0.0.1:8000/printer/status \
+    -X GET http://127.0.0.1:8000/api/printer/status \
     -H "PPH-Tenant-Id: admin-test-id" \
     -H "PPH-Tenant-Token: admin-test-token"
 ```
@@ -38,7 +38,7 @@ curl \
 
 ```shell
 curl \
-    -X GET http://127.0.0.1:8000/printer/status \
+    -X GET http://127.0.0.1:8000/api/printer/status \
     -H "PPH-Tenant-Id: user-test-id" \
     -H "PPH-Tenant-Token: user-test-token"
 ```
@@ -50,7 +50,7 @@ curl \
 
 ```shell
 curl \
-    -X POST http://127.0.0.1:8000/printer/feed \
+    -X POST http://127.0.0.1:8000/api/printer/feed \
     -H "Content-Type: application/json" \
     -H "PPH-Tenant-Id: admin-test-id" \
     -H "PPH-Tenant-Token: admin-test-token" \
@@ -61,7 +61,7 @@ curl \
 
 ```shell
 curl \
-    -X POST http://127.0.0.1:8000/printer/feed \
+    -X POST http://127.0.0.1:8000/api/printer/feed \
     -H "Content-Type: application/json" \
     -H "PPH-Tenant-Id: user-test-id" \
     -H "PPH-Tenant-Token: user-test-token" \
@@ -77,7 +77,7 @@ _(Optional) nTimes - number of times to feed (5 <= n_times <= 255); defaults to 
 
 ```shell
 curl \
-    -X POST http://127.0.0.1:8000/printer/cut \
+    -X POST http://127.0.0.1:8000/api/printer/cut \
     -H "PPH-Tenant-Id: admin-test-id" \
     -H "PPH-Tenant-Token: admin-test-token"
 ```
@@ -86,7 +86,7 @@ curl \
 
 ```shell
 curl \
-    -X POST http://127.0.0.1:8000/printer/cut \
+    -X POST http://127.0.0.1:8000/api/printer/cut \
     -H "PPH-Tenant-Id: user-test-id" \
     -H "PPH-Tenant-Token: user-test-token"
 ```
@@ -98,7 +98,7 @@ curl \
 
 ```shell
 curl \
-    -X POST http://127.0.0.1:8000/queues/republish \
+    -X POST http://127.0.0.1:8000/api/queues/republish \
     -H "PPH-Tenant-Id: admin-test-id" \
     -H "PPH-Tenant-Token: admin-test-token"
 ```
@@ -107,7 +107,7 @@ curl \
 
 ```shell
 curl \
-    -X POST http://127.0.0.1:8000/queues/republish \
+    -X POST http://127.0.0.1:8000/api/queues/republish \
     -H "PPH-Tenant-Id: user-test-id" \
     -H "PPH-Tenant-Token: user-test-token"
 ```
@@ -119,7 +119,7 @@ curl \
 
 ```shell
 curl \
-    -X GET http://127.0.0.1:8000/queues/status \
+    -X GET http://127.0.0.1:8000/api/queues/status \
     -H "PPH-Tenant-Id: admin-test-id" \
     -H "PPH-Tenant-Token: admin-test-token"
 ```
@@ -128,7 +128,7 @@ curl \
 
 ```shell
 curl \
-    -X GET http://127.0.0.1:8000/queues/status \
+    -X GET http://127.0.0.1:8000/api/queues/status \
     -H "PPH-Tenant-Id: user-test-id" \
     -H "PPH-Tenant-Token: user-test-token"
 ```
@@ -140,7 +140,7 @@ curl \
 
 ```shell
 curl \
-    -X POST http://127.0.0.1:8000/tenant/role \
+    -X POST http://127.0.0.1:8000/api/tenant/role \
     -H "Content-Type: application/json" \
     -H "PPH-Tenant-Id: admin-test-id" \
     -H "PPH-Tenant-Token: admin-test-token" \
@@ -151,7 +151,7 @@ curl \
 
 ```shell
 curl \
-    -X POST http://127.0.0.1:8000/tenant/role \
+    -X POST http://127.0.0.1:8000/api/tenant/role \
     -H "Content-Type: application/json" \
     -H "PPH-Tenant-Id: user-test-id" \
     -H "PPH-Tenant-Token: user-test-token" \
