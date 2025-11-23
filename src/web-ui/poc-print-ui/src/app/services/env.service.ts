@@ -2,11 +2,9 @@ import { Inject, Injectable } from '@angular/core';
 import { EnvConfig } from '../interfaces';
 import { WINDOW } from '../injection.tokens';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable({providedIn: 'root'})
 export class EnvService {
-  private config: EnvConfig;
+  private readonly config: EnvConfig;
 
   constructor(@Inject(WINDOW) private window: Window) {
     if ((this.window as any)["env"]) {
@@ -22,5 +20,13 @@ export class EnvService {
 
   get apiUrl(): string {
     return this.config.apiUrl;
+  }
+
+  get tenantIdHeader(): string {
+    return this.config.tenantIdHeader;
+  }
+
+  get tenantTokenHeader(): string {
+    return this.config.tenantTokenHeader;
   }
 }
