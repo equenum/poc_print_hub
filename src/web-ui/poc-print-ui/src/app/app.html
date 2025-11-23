@@ -75,16 +75,24 @@
         </h2>
         <div>Tenant authentication</div>
         <div>
-          <input type="text" placeholder="Enter tenant id" class="input validator" maxlength="100" pattern=".*\S.*" />
+          <input [(ngModel)]="tenantId" type="text" placeholder="Enter tenant id" class="input validator" maxlength="100" pattern=".*\S.*" />
           <div id="tenant-id-hint" class="validator-hint hidden">Must not be whitespace</div>
         </div>
         <div>
-          <input type="password" placeholder="Enter tenant token" class="input validator" maxlength="1000"
+          <input [(ngModel)]="tenantToken" type="password" placeholder="Enter tenant token" class="input validator" maxlength="1000"
             pattern=".*\S.*" />
           <div id="tenant-token-hint" class="validator-hint hidden">Must not be whitespace</div>
         </div>
         <div class="card-actions justify-end pt-5">
-          <button class="btn btn-primary">Save</button>
+          <button (click)="onTenantAuthSave()" class="btn btn-primary">
+            <div class="w-10">
+              @if (isTenantAuthInProgress()) {
+                <span class="loading loading-dots loading-md"></span>
+              } @else {
+                Save
+              }
+            </div>
+          </button>
         </div>
       </div>
     </div>
