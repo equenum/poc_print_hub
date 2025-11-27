@@ -20,7 +20,8 @@ services:
       - DATABASES_POSTGRESQL_USER=
       - DATABASES_POSTGRESQL_PASSWORD=
       - DATABASES_POSTGRESQL_HOST=
-      - DJANGO_ALLOWED_HOSTS=127.0.0.1    # comma separated for multiple
+      - DJANGO_ALLOWED_HOSTS=127.0.0.1	# comma separated for multiple
+      - CORS_ALLOWED_ORIGINS=		        # comma separated for multiple
   celery_beat:
     build:
       context: ./api

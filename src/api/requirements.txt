@@ -8,3 +8,4 @@ python-dotenv==1.2.1
 python_escpos==3.1
 psycopg2-binary==2.9.10
 whitenoise==6.11.0
+django-cors-headers==4.9.0
