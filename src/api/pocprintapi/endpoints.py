@@ -56,7 +56,7 @@ def queue_status(request: HttpRequest):
 
 @api_view(['POST'])
 def tenant_role(request: HttpRequest):
-    if _is_request_authorized(request, [TenantRole.ADMIN]):
+    if _is_request_authorized(request, [TenantRole.ADMIN, TenantRole.USER]):
         body_dict = json.loads(request.body)
         tenant_id = body_dict.get("tenantId")
         return AuthService().get_tenant_role(tenant_id)
