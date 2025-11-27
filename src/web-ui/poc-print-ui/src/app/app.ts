@@ -65,7 +65,33 @@ export class App {
     this.tenantData = tenantData;
     this.isTenantAuthenticated.set(true);
     this.isTenantAuthInProgress.set(false);
+    this.tenantId.set('');
+    this.tenantToken.set('');
+
     // show success toast: ngx-toastr
+
+    // reset dashboard data and status
+    this.queueStatusData = undefined;
+    this.printerStatusData = undefined;
+    this.isQueueStatusLoaded.set(false);
+    this.isPrinterStatusLoaded.set(false);
+
+    // load dashboard data
+    this.apiService.getQueueStatuses(this.tenantService.tenantId, this.tenantService.tenantToken)
+      .subscribe((data) => {
+        this.queueStatusData = data;
+        this.isQueueStatusLoaded.set(true);
+    });
+
+    this.apiService.getPrinterStatus(this.tenantService.tenantId, this.tenantService.tenantToken)
+      .subscribe((data) => {
+        this.printerStatusData = data;
+        this.isPrinterStatusLoaded.set(true);
+    });
+  }
+
+  isTenantSaveButtonDisabled(): boolean {
+    return this.tenantId().length == 0 || this.tenantToken().length == 0;
   }
 
   getBodyTypePlaceholder(): string {
@@ -130,7 +156,7 @@ export class App {
   getTenantId(): string {
     if (this.tenantData) {
       return this.tenantData.tenantId.length >= 10
-        ? `${this.tenantData.tenantId.slice(0, 10)}***` 
+        ? `${this.tenantData.tenantId.slice(0, 10)}...` 
         : this.tenantData.tenantId
     }
 

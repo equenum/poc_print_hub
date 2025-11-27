@@ -18,15 +18,42 @@
         <div class="stats flex shadow bg-base-100">
           <div class="stat flex-auto place-items-center">
             <div class="stat-title">Name</div>
-            <div class="stat-value">RP326</div>
+            <div class="stat-value">
+              @if (!isTenantAuthenticated()) {
+                {{ dataPlaceholder }}
+              }
+              @else if (isPrinterStatusLoaded()) {
+                {{ getPrinterName() }}
+              } @else {
+                <span class="loading loading-dots loading-xl"></span>
+              }
+            </div>
           </div>
           <div class="stat flex-auto place-items-center">
             <div class="stat-title">Status</div>
-            <div class="stat-value text-secondary">Online</div>
+            <div class="stat-value text-secondary">
+              @if (!isTenantAuthenticated()) {
+                {{ dataPlaceholder }}
+              }
+              @else if (isPrinterStatusLoaded()) {
+                {{ getPrinterStatus() }}
+              } @else {
+                <span class="loading loading-dots loading-xl"></span>
+              }
+            </div>
           </div>
           <div class="stat flex-auto place-items-center">
             <div class="stat-title">Paper</div>
-            <div class="stat-value">Plenty</div>
+            <div class="stat-value">
+              @if (!isTenantAuthenticated()) {
+                {{ dataPlaceholder }}
+              }
+              @else if (isPrinterStatusLoaded()) {
+                {{ getPrinterPaperStatus() }}
+              } @else {
+                <span class="loading loading-dots loading-xl"></span>
+              }
+            </div>
           </div>
         </div>
         <div>Message broker status</div>
@@ -37,11 +64,29 @@
           </div>
           <div class="stat flex-auto place-items-center">
             <div class="stat-title">Status</div>
-            <div class="stat-value text-secondary">Online</div>
+            <div class="stat-value text-secondary">
+              @if (!isTenantAuthenticated()) {
+                {{ dataPlaceholder }}
+              }
+              @else if (isQueueStatusLoaded() && queueStatusData) {
+                {{ getQueueStatus('print') }}
+              } @else {
+                <span class="loading loading-dots loading-xl"></span>
+              }
+            </div>
           </div>
           <div class="stat flex-auto place-items-center">
             <div class="stat-title">Message count</div>
-            <div class="stat-value">123</div>
+            <div class="stat-value">
+              @if (!isTenantAuthenticated()) {
+                {{ dataPlaceholder }}
+              }
+              @else if (isQueueStatusLoaded() && queueStatusData) {
+                {{ getQueueCount('print') }}
+              } @else {
+                <span class="loading loading-dots loading-xl"></span>
+              }
+            </div>
           </div>
         </div>
         <div class="stats flex shadow bg-base-100">
@@ -51,22 +96,52 @@
           </div>
           <div class="stat flex-auto place-items-center">
             <div class="stat-title">Status</div>
-            <div class="stat-value text-secondary">Online</div>
+            <div class="stat-value text-secondary">
+              @if (!isTenantAuthenticated()) {
+                {{ dataPlaceholder }}
+              }
+              @else if (isQueueStatusLoaded() && queueStatusData) {
+                {{ getQueueStatus('error') }}
+              } @else {
+                <span class="loading loading-dots loading-xl"></span>
+              }
+            </div>
           </div>
           <div class="stat flex-auto place-items-center">
             <div class="stat-title">Message count</div>
-            <div class="stat-value">123</div>
+            <div class="stat-value">
+              @if (!isTenantAuthenticated()) {
+                {{ dataPlaceholder }}
+              }
+              @else if (isQueueStatusLoaded() && queueStatusData) {
+                {{ getQueueCount('error') }}
+              } @else {
+                <span class="loading loading-dots loading-xl"></span>
+              }
+            </div>
           </div>
         </div>
         <div>Current tenant</div>
         <div class="stats flex shadow bg-base-100">
           <div class="stat flex-auto place-items-center">
             <div class="stat-title">Id</div>
-            <div class="stat-value">Test-Id</div>
+            <div class="stat-value">
+              @if (isTenantAuthenticated()) {
+                {{ getTenantId() }}
+              } @else {
+                {{ dataPlaceholder }}
+              }
+            </div>
           </div>
           <div class="stat flex-auto place-items-center">
             <div class="stat-title">Role</div>
-            <div class="stat-value text-secondary">Admin</div>
+            <div class="stat-value text-secondary">
+              @if (isTenantAuthenticated()) {
+                {{ getTenantRole() }}
+              } @else {
+                {{ dataPlaceholder }}
+              }
+            </div>
           </div>
         </div>
         <div class="divider"></div>
