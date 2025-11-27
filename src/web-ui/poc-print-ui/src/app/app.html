@@ -13,13 +13,14 @@
       <div class="card-body">
         <h2 class="card-title">
           Dashboard
+          <div class="badge badge-secondary">ADMIN</div>
         </h2>
         <div>Printer status</div>
         <div class="stats flex shadow bg-base-100">
           <div class="stat flex-auto place-items-center">
             <div class="stat-title">Name</div>
             <div class="stat-value">
-              @if (!isTenantAuthenticated()) {
+              @if (!isTenantAuthenticated() || !isTenantAuthorized(['Admin'])) {
                 {{ dataPlaceholder }}
               }
               @else if (isPrinterStatusLoaded()) {
@@ -32,7 +33,7 @@
           <div class="stat flex-auto place-items-center">
             <div class="stat-title">Status</div>
             <div class="stat-value text-secondary">
-              @if (!isTenantAuthenticated()) {
+              @if (!isTenantAuthenticated() || !isTenantAuthorized(['Admin'])) {
                 {{ dataPlaceholder }}
               }
               @else if (isPrinterStatusLoaded()) {
@@ -45,7 +46,7 @@
           <div class="stat flex-auto place-items-center">
             <div class="stat-title">Paper</div>
             <div class="stat-value">
-              @if (!isTenantAuthenticated()) {
+              @if (!isTenantAuthenticated() || !isTenantAuthorized(['Admin'])) {
                 {{ dataPlaceholder }}
               }
               @else if (isPrinterStatusLoaded()) {
@@ -65,7 +66,7 @@
           <div class="stat flex-auto place-items-center">
             <div class="stat-title">Status</div>
             <div class="stat-value text-secondary">
-              @if (!isTenantAuthenticated()) {
+              @if (!isTenantAuthenticated() || !isTenantAuthorized(['Admin'])) {
                 {{ dataPlaceholder }}
               }
               @else if (isQueueStatusLoaded() && queueStatusData) {
@@ -78,7 +79,7 @@
           <div class="stat flex-auto place-items-center">
             <div class="stat-title">Message count</div>
             <div class="stat-value">
-              @if (!isTenantAuthenticated()) {
+              @if (!isTenantAuthenticated() || !isTenantAuthorized(['Admin'])) {
                 {{ dataPlaceholder }}
               }
               @else if (isQueueStatusLoaded() && queueStatusData) {
@@ -97,7 +98,7 @@
           <div class="stat flex-auto place-items-center">
             <div class="stat-title">Status</div>
             <div class="stat-value text-secondary">
-              @if (!isTenantAuthenticated()) {
+              @if (!isTenantAuthenticated() || !isTenantAuthorized(['Admin'])) {
                 {{ dataPlaceholder }}
               }
               @else if (isQueueStatusLoaded() && queueStatusData) {
@@ -110,7 +111,7 @@
           <div class="stat flex-auto place-items-center">
             <div class="stat-title">Message count</div>
             <div class="stat-value">
-              @if (!isTenantAuthenticated()) {
+              @if (!isTenantAuthenticated() || !isTenantAuthorized(['Admin'])) {
                 {{ dataPlaceholder }}
               }
               @else if (isQueueStatusLoaded() && queueStatusData) {
@@ -150,16 +151,16 @@
         </h2>
         <div>Tenant authentication</div>
         <div>
-          <input [(ngModel)]="tenantId" type="text" placeholder="Enter tenant id" class="input validator" maxlength="100" pattern=".*\S.*" />
+          <input [(ngModel)]="tenantId" #tenantIdInput="ngModel" name="tenantIdInput" type="text" placeholder="Enter tenant id" class="input validator" maxlength="100" pattern=".*\S.*" />
           <div id="tenant-id-hint" class="validator-hint hidden">Must not be whitespace</div>
         </div>
         <div>
-          <input [(ngModel)]="tenantToken" type="password" placeholder="Enter tenant token" class="input validator" maxlength="1000"
+          <input [(ngModel)]="tenantToken" #tenantTokenInput="ngModel" name="tenantTokenInput" type="password" placeholder="Enter tenant token" class="input validator" maxlength="1000"
             pattern=".*\S.*" />
           <div id="tenant-token-hint" class="validator-hint hidden">Must not be whitespace</div>
         </div>
         <div class="card-actions justify-end pt-5">
-          <button (click)="onTenantAuthSave()" class="btn btn-primary">
+          <button (click)="onTenantAuthSave()" [disabled]="isTenantSaveButtonDisabled() || tenantTokenInput.invalid || tenantIdInput.invalid" class="btn btn-primary">
             <div class="w-10">
               @if (isTenantAuthInProgress()) {
                 <span class="loading loading-dots loading-md"></span>
@@ -179,7 +180,7 @@
         <h2 class="card-title">
           Publish message
           <div class="badge badge-secondary">ADMIN</div>
-          <div class="badge badge-secondary">USER</div>
+          <div class="badge badge-primary">USER</div>
         </h2>
         <div>Publish message for printing</div>
         <fieldset class="fieldset py-0!">
@@ -191,8 +192,8 @@
         <textarea class="textarea w-full" placeholder="Enter message title" maxlength="1000"></textarea>
         <textarea class="textarea w-full" [placeholder]="getBodyTypePlaceholder()" maxlength="10000"></textarea>
         <div class="card-actions justify-end pt-5">
-          <button class="btn btn-secondary">Reset</button>
-          <button class="btn btn-primary">Send</button>
+          <button class="btn btn-secondary" [disabled]="!isTenantAuthenticated() || !isTenantAuthorized(['Admin', 'User'])">Reset</button>
+          <button class="btn btn-primary" [disabled]="!isTenantAuthenticated() || !isTenantAuthorized(['Admin', 'User'])">Send</button>
         </div>
       </div>
     </div>
@@ -247,8 +248,8 @@
         </div>
         }
         <div class="card-actions justify-end pt-5">
-          <button class="btn btn-secondary">Reset</button>
-          <button class="btn btn-primary">Send</button>
+          <button class="btn btn-secondary" [disabled]="!isTenantAuthenticated() || !isTenantAuthorized(['Admin'])">Reset</button>
+          <button class="btn btn-primary" [disabled]="!isTenantAuthenticated() || !isTenantAuthorized(['Admin'])">Send</button>
         </div>
       </div>
     </div>
@@ -260,7 +261,7 @@
         </h2>
         <div>Cut paper: feeds `n*6` times, then cuts</div>
         <div class="card-actions justify-end pt-5">
-          <button class="btn btn-primary">Send</button>
+          <button class="btn btn-primary" [disabled]="!isTenantAuthenticated() || !isTenantAuthorized(['Admin'])">Send</button>
         </div>
       </div>
     </div>
@@ -272,7 +273,7 @@
         </h2>
         <div>Republish all messages from `error` queue to `print` queue</div>
         <div class="card-actions justify-end pt-5">
-          <button class="btn btn-primary">Send</button>
+          <button class="btn btn-primary" [disabled]="!isTenantAuthenticated() || !isTenantAuthorized(['Admin'])">Send</button>
         </div>
       </div>
     </div>

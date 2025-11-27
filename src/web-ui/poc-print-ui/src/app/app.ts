@@ -76,22 +76,34 @@ export class App {
     this.isQueueStatusLoaded.set(false);
     this.isPrinterStatusLoaded.set(false);
 
-    // load dashboard data
-    this.apiService.getQueueStatuses(this.tenantService.tenantId, this.tenantService.tenantToken)
-      .subscribe((data) => {
-        this.queueStatusData = data;
-        this.isQueueStatusLoaded.set(true);
-    });
+    // if user is Admin, load dashboard data
+    if (this.tenantData?.role.toLowerCase() == 'admin') {
+      this.apiService.getQueueStatuses(this.tenantService.tenantId, this.tenantService.tenantToken)
+        .subscribe((data) => {
+          this.queueStatusData = data;
+          this.isQueueStatusLoaded.set(true);
+      });
 
-    this.apiService.getPrinterStatus(this.tenantService.tenantId, this.tenantService.tenantToken)
-      .subscribe((data) => {
-        this.printerStatusData = data;
-        this.isPrinterStatusLoaded.set(true);
-    });
+      this.apiService.getPrinterStatus(this.tenantService.tenantId, this.tenantService.tenantToken)
+        .subscribe((data) => {
+          this.printerStatusData = data;
+          this.isPrinterStatusLoaded.set(true);
+      });
+    }
   }
 
   isTenantSaveButtonDisabled(): boolean {
     return this.tenantId().length == 0 || this.tenantToken().length == 0;
+  }
+
+  isTenantAuthorized(allowedRoles: string[]): boolean {
+    if (!this.isTenantAuthenticated() || !this.tenantData) {
+      return false;
+    }
+
+    return allowedRoles.some(
+      role => role.toLowerCase() == this.tenantData?.role.toLowerCase()
+    );
   }
 
   getBodyTypePlaceholder(): string {
