@@ -9,8 +9,8 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'by-using-default-secrets-I-am-running
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
 POC_PRINT_HUB_TENANT_AUTH_ENABLED = os.environ.get('POC_PRINT_HUB_TENANT_AUTH_ENABLED', 'True') == 'True'
-POC_PRINT_HUB_TENANT_ID_HEADER = 'PPH-Tenant-Id'
-POC_PRINT_HUB_TENANT_TOKEN_HEADER = 'PPH-Tenant-Token'
+POC_PRINT_HUB_TENANT_ID_HEADER = 'Pph-Tenant-Id'
+POC_PRINT_HUB_TENANT_TOKEN_HEADER = 'Pph-Tenant-Token'
 
 POC_PRINT_HUB_RABBIT_MQ_HOST = os.environ.get('POC_PRINT_HUB_RABBIT_MQ_HOST')
 POC_PRINT_HUB_RABBIT_MQ_USERNAME = os.environ.get('POC_PRINT_HUB_RABBIT_MQ_USERNAME')
@@ -32,7 +32,19 @@ POC_PRINT_HUB_PRINTER_CHECK_PAPER_STATUS = os.environ.get('POC_PRINT_HUB_PRINTER
 
 CELERY_BROKER_URL = f"amqp://{POC_PRINT_HUB_RABBIT_MQ_USERNAME}:{POC_PRINT_HUB_RABBIT_MQ_PASSWORD}@{POC_PRINT_HUB_RABBIT_MQ_HOST}:5672//"
 
-ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', '127.0.0.1').split(",")
+ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', 'localhost').split(",")
+CORS_ALLOWED_ORIGINS = os.environ.get('CORS_ALLOWED_ORIGINS', 'http://localhost:4200').split(",")
+
+CORS_ALLOW_HEADERS = (
+    'Pph-Tenant-Id',
+    'Pph-Tenant-Token',
+    'content-type'
+)
+
+CORS_ALLOW_METHODS = (
+    'GET',
+    'POST'
+)
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -43,9 +55,12 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'pocprintapi',
+    'corsheaders'
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
