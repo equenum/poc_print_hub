@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { PrinterStatusData, QueueStatusData, SelectOption, TenantData } from './interfaces';
 import { ApiService } from './services/api.service';
 import { TenantService } from './services/tenant.service';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-root',
@@ -16,6 +17,7 @@ export class App {
 
   private readonly apiService = inject(ApiService);
   private readonly tenantService = inject(TenantService);
+  private readonly toastrService = inject(ToastrService);
 
   readonly bodyTypeOptions: SelectOption[] = [
     { value: 'text', displayName: 'Text' },
