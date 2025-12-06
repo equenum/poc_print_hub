@@ -6,6 +6,7 @@ import { PrinterStatusData, QueueStatusData, SelectOption, TenantData } from './
 import { ApiService } from './services/api.service';
 import { TenantService } from './services/tenant.service';
 import { ToastrService } from 'ngx-toastr';
+import { TenantStatus } from './consts';
 
 @Component({
   selector: 'app-root',
@@ -53,24 +54,29 @@ export class App {
   async onTenantAuthSave(): Promise<void> {
     this.isTenantAuthInProgress.set(true);
 
-    var tenantData = await this.tenantService.authenticate(
-      this.tenantId().trim(), 
+    var tenantDataBundle = await this.tenantService.authenticate(
+      this.tenantId().trim(),
       this.tenantToken().trim()
     );
-    
-    if (!tenantData) {
-      // show error toast: ngx-toastr
+
+    if (tenantDataBundle.status != TenantStatus.Authenticated) {
       this.isTenantAuthInProgress.set(false);
+
+      var message = tenantDataBundle.status == TenantStatus.NotFound 
+        ? 'Tenant not found' 
+        : 'Tenant data fetch error';
+
+      this.toastrService.error(message, 'Authentication failed');
       return;
     }
 
-    this.tenantData = tenantData;
+    this.tenantData = tenantDataBundle.data;
     this.isTenantAuthenticated.set(true);
     this.isTenantAuthInProgress.set(false);
     this.tenantId.set('');
     this.tenantToken.set('');
 
-    // show success toast: ngx-toastr
+    this.toastrService.success('Authentication succeeded');
 
     // reset dashboard data and status
     this.queueStatusData = undefined;
@@ -81,16 +87,16 @@ export class App {
     // if user is Admin, load dashboard data
     if (this.tenantData?.role.toLowerCase() == 'admin') {
       this.apiService.getQueueStatuses(this.tenantService.tenantId, this.tenantService.tenantToken)
-        .subscribe((data) => {
-          this.queueStatusData = data;
+        .subscribe((response) => {
+          this.queueStatusData = response.body || undefined;
           this.isQueueStatusLoaded.set(true);
-      });
+        });
 
       this.apiService.getPrinterStatus(this.tenantService.tenantId, this.tenantService.tenantToken)
-        .subscribe((data) => {
-          this.printerStatusData = data;
+        .subscribe((response) => {
+          this.printerStatusData = response.body || undefined;
           this.isPrinterStatusLoaded.set(true);
-      });
+        });
     }
   }
 
@@ -121,19 +127,19 @@ export class App {
 
   getPrinterName(): string {
     return this.printerStatusData
-      ? this.printerStatusData.name 
+      ? this.printerStatusData.name
       : this.dataPlaceholder;
   }
 
   getPrinterStatus(): string {
     return this.printerStatusData
-      ? this.getQueueStatusMesage(this.printerStatusData.isOnline) 
+      ? this.getQueueStatusMesage(this.printerStatusData.isOnline)
       : this.dataPlaceholder;
   }
 
   getPrinterPaperStatus(): string {
     return this.printerStatusData
-      ? this.printerStatusData.paperStatus 
+      ? this.printerStatusData.paperStatus
       : this.dataPlaceholder;
   }
 
@@ -170,7 +176,7 @@ export class App {
   getTenantId(): string {
     if (this.tenantData) {
       return this.tenantData.tenantId.length >= 10
-        ? `${this.tenantData.tenantId.slice(0, 10)}...` 
+        ? `${this.tenantData.tenantId.slice(0, 10)}...`
         : this.tenantData.tenantId
     }
 
