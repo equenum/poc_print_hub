@@ -1,3 +1,5 @@
+import { TenantStatus } from "./consts";
+
 export interface EnvConfig {
     isProduction: boolean;
     apiUrl: string;
@@ -29,6 +31,11 @@ export interface PrinterStatusData {
 export interface TenantData {
     tenantId: string;
     role: string;
+}
+
+export interface TenantDataBundle {
+    data: TenantData | undefined;
+    status: TenantStatus;
 }
 
 export interface TenantRoleRequest {
