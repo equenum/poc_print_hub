@@ -1,7 +1,9 @@
 import { inject, Injectable } from '@angular/core';
 import { ApiService } from './api.service';
-import { TenantData } from '../interfaces';
+import { TenantData, TenantDataBundle } from '../interfaces';
 import { lastValueFrom } from 'rxjs';
+import { TenantStatus } from '../consts';
+import { HttpStatusCode } from '@angular/common/http';
 
 @Injectable({providedIn: 'root'})
 export class TenantService {
@@ -10,16 +12,32 @@ export class TenantService {
   private authToken: string = '';
   private tenantData: TenantData | undefined;
 
-  async authenticate(authTenantId: string, authToken: string): Promise<TenantData | undefined> {
-    var tenantData = await lastValueFrom(this.apiService.getTenantRole(authTenantId, authToken));
-    if (!tenantData) {
-      return undefined;
+  async authenticate(authTenantId: string, authToken: string): Promise<TenantDataBundle> {
+    var tenantResponse = await lastValueFrom(this.apiService.getTenantRole(authTenantId, authToken));
+
+    if (tenantResponse && tenantResponse.body) {
+      if (tenantResponse.status == HttpStatusCode.Ok as number) {
+        this.tenantData = tenantResponse.body;
+        this.authToken = authToken;
+
+        return {
+          data: this.tenantData,
+          status: TenantStatus.Authenticated
+        };
+      }
+
+      if (tenantResponse.status == HttpStatusCode.NotFound as number || tenantResponse.status == HttpStatusCode.Unauthorized as number) {
+        return {
+          data: undefined,
+          status: TenantStatus.NotFound
+        };
+      }
     }
 
-    this.tenantData = tenantData;
-    this.authToken = authToken;
-
-    return this.tenantData;
+    return {
+      data: undefined,
+      status: TenantStatus.NonAuthenticated
+    };
   }
 
   get tenantId(): string {
