@@ -34,3 +34,8 @@ export interface TenantData {
 export interface TenantRoleRequest {
     tenantId: string;
 }
+
+export interface GenericApiResponse {
+    message: string;
+    errors: string;
+}
