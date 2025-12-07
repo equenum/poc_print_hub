@@ -29,4 +29,8 @@ export class EnvService {
   get tenantTokenHeader(): string {
     return this.config.tenantTokenHeader;
   }
+
+  get messageOriginName(): string {
+    return this.config.messageOriginName;
+  }
 }

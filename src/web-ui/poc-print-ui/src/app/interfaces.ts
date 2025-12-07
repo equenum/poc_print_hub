@@ -5,6 +5,7 @@ export interface EnvConfig {
     apiUrl: string;
     tenantIdHeader: string;
     tenantTokenHeader: string;
+    messageOriginName: string;
 }
 
 export interface SelectOption {
