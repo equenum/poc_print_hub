@@ -126,12 +126,14 @@
         <div class="stats flex shadow bg-base-100">
           <div class="stat flex-auto place-items-center">
             <div class="stat-title">Id</div>
-            <div class="stat-value">
-              @if (isTenantAuthenticated()) {
-                {{ getTenantId() }}
-              } @else {
-                {{ dataPlaceholder }}
-              }
+            <div class="tooltip" [attr.data-tip]="getFullTenantId()">
+              <div class="stat-value">
+                @if (isTenantAuthenticated()) {
+                  {{ getTenantId() }}
+                } @else {
+                  {{ dataPlaceholder }}
+                }
+              </div>
             </div>
           </div>
           <div class="stat flex-auto place-items-center">
@@ -160,15 +162,17 @@
           <div id="tenant-token-hint" class="validator-hint hidden">Must not be whitespace</div>
         </div>
         <div class="card-actions justify-end pt-5">
-          <button (click)="onTenantAuthSave()" [disabled]="isTenantSaveButtonDisabled() || isTenantAuthInProgress() || tenantTokenInput.invalid || tenantIdInput.invalid" class="btn btn-primary">
-            <div class="w-10">
-              @if (isTenantAuthInProgress()) {
-                <span class="loading loading-dots loading-md"></span>
-              } @else {
-                Save
-              }
-            </div>
-          </button>
+          <div class="tooltip" [attr.data-tip]="getTenantAuthSaveTooltip()">
+            <button (click)="onTenantAuthSave()" [disabled]="isTenantSaveButtonDisabled() || isTenantAuthInProgress() || tenantTokenInput.invalid || tenantIdInput.invalid" class="btn btn-primary">
+              <div class="w-10">
+                @if (isTenantAuthInProgress()) {
+                  <span class="loading loading-dots loading-md"></span>
+                } @else {
+                  Save
+                }
+              </div>
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -186,14 +190,26 @@
         <fieldset class="fieldset py-0!">
           <legend class="fieldset-legend">Message body type</legend>
           <select class="select" [(ngModel)]="selectedBodyType">
-            <option *ngFor="let option of bodyTypeOptions" [ngValue]="option.value">{{ option.displayName }}</option>
+            @for (option of bodyTypeOptions; track option.value) {
+              <option [ngValue]="option.value">{{ option.displayName }}</option>
+            }
           </select>
         </fieldset>
-        <textarea class="textarea w-full" placeholder="Enter message title" maxlength="1000"></textarea>
-        <textarea class="textarea w-full" [placeholder]="getBodyTypePlaceholder()" maxlength="10000"></textarea>
+        <textarea class="textarea w-full" [(ngModel)]="messageTitle" placeholder="Enter message title" maxlength="1000"></textarea>
+        <textarea class="textarea w-full" [(ngModel)]="messageBody" [placeholder]="getBodyTypePlaceholder()" maxlength="10000"></textarea>
         <div class="card-actions justify-end pt-5">
-          <button class="btn btn-secondary" [disabled]="!isTenantAuthenticated() || !isTenantAuthorized(['Admin', 'User'])">Reset</button>
-          <button class="btn btn-primary" [disabled]="!isTenantAuthenticated() || !isTenantAuthorized(['Admin', 'User'])">Send</button>
+          <button (click)="onResetPublishMessageForm()" class="btn btn-secondary" [disabled]="!isTenantAuthenticated() || !isTenantAuthorized(['Admin', 'User']) || isPublishMessageInProgress() || isMessagePublishingDisabled()">Reset</button>
+          <div class="tooltip" [attr.data-tip]="getPublishMessageTooltip(['Admin', 'User'])">
+            <button (click)="onPublishMessages()" class="btn btn-primary" [disabled]="!isTenantAuthenticated() || !isTenantAuthorized(['Admin', 'User']) || isPublishMessageInProgress() || isMessagePublishingDisabled()">
+              <div class="w-10">
+                @if (isPublishMessageInProgress()) {
+                  <span class="loading loading-dots loading-md"></span>
+                } @else {
+                  Send
+                }
+              </div>
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -207,8 +223,9 @@
         <fieldset class="fieldset py-0!">
           <legend class="fieldset-legend">Selector type</legend>
           <select class="select" [(ngModel)]="selectedFeedSelectorType">
-            <option *ngFor="let option of feedSelectorTypeOptions" [ngValue]="option.value">{{ option.displayName }}
-            </option>
+            @for (option of feedSelectorTypeOptions; track option.value) {
+              <option [ngValue]="option.value">{{ option.displayName }}</option>
+            }
           </select>
         </fieldset>
         @if (selectedFeedSelectorType() == 'custom')
@@ -220,7 +237,7 @@
         @if (selectedFeedSelectorType() == 'slider')
         {
         <div class="w-full max-w-xs">
-          <input type="range" min="25" max="250" value="50" class="range w-116" step="25" />
+          <input type="range" [(ngModel)]="selectedFeedTimesRange" min="25" max="250" value="50" class="range w-116" step="25" />
           <div class="flex justify-between px-3.5 mt-2 text-xs w-116">
             <span>|</span>
             <span>|</span>
@@ -248,8 +265,18 @@
         </div>
         }
         <div class="card-actions justify-end pt-5">
-          <button class="btn btn-secondary" [disabled]="!isTenantAuthenticated() || !isTenantAuthorized(['Admin'])">Reset</button>
-          <button class="btn btn-primary" [disabled]="!isTenantAuthenticated() || !isTenantAuthorized(['Admin'])">Send</button>
+          <button (click)="onResetFeedPaperForm()" class="btn btn-secondary" [disabled]="!isTenantAuthenticated() || !isTenantAuthorized(['Admin']) || isFeedPaperInProgress() || isFeedPaperDisabled()">Reset</button>
+          <div class="tooltip" [attr.data-tip]="getFeedPaperTooltip(['Admin'])">
+            <button (click)="onFeedPaper()" class="btn btn-primary" [disabled]="!isTenantAuthenticated() || !isTenantAuthorized(['Admin']) || isFeedPaperInProgress() || isFeedPaperDisabled()">
+              <div class="w-10">
+                @if (isFeedPaperInProgress()) {
+                  <span class="loading loading-dots loading-md"></span>
+                } @else {
+                  Send
+                }
+              </div>
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -261,15 +288,17 @@
         </h2>
         <div>Cut paper: feeds `n*6` times, then cuts</div>
         <div class="card-actions justify-end pt-5">
-          <button (click)="onCutPaper()" class="btn btn-primary" [disabled]="!isTenantAuthenticated() || !isTenantAuthorized(['Admin']) || isCutPaperInProgress()">
-            <div class="w-10">
-              @if (isCutPaperInProgress()) {
-                <span class="loading loading-dots loading-md"></span>
-              } @else {
-                Send
-              }
-            </div>
-          </button>
+          <div class="tooltip" [attr.data-tip]="getTenantAuthTooltip(['Admin'])">
+            <button (click)="onCutPaper()" class="btn btn-primary" [disabled]="!isTenantAuthenticated() || !isTenantAuthorized(['Admin']) || isCutPaperInProgress()">
+              <div class="w-10">
+                @if (isCutPaperInProgress()) {
+                  <span class="loading loading-dots loading-md"></span>
+                } @else {
+                  Send
+                }
+              </div>
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -281,7 +310,17 @@
         </h2>
         <div>Republish all messages from `error` queue to `print` queue</div>
         <div class="card-actions justify-end pt-5">
-          <button class="btn btn-primary" [disabled]="!isTenantAuthenticated() || !isTenantAuthorized(['Admin'])">Send</button>
+          <div class="tooltip" [attr.data-tip]="getTenantAuthTooltip(['Admin'])">
+            <button (click)="onRepublishMessages()" class="btn btn-primary" [disabled]="!isTenantAuthenticated() || !isTenantAuthorized(['Admin']) || isRepublishMessagesInProgress()">
+              <div class="w-10">
+                @if (isRepublishMessagesInProgress()) {
+                  <span class="loading loading-dots loading-md"></span>
+                } @else {
+                  Send
+                }
+              </div>
+            </button>
+          </div>
         </div>
       </div>
     </div>

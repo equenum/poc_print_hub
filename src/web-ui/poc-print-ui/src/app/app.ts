@@ -2,11 +2,11 @@ import { Component, inject, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { PrinterStatusData, QueueStatusData, SelectOption, TenantData } from './interfaces';
+import { NotificationMessage, PrinterStatusData, QueueStatusData, SelectOption, TenantData } from './interfaces';
 import { ApiService } from './services/api.service';
 import { TenantService } from './services/tenant.service';
 import { ToastrService } from 'ngx-toastr';
-import { TenantStatus } from './consts';
+import { MessageBodyType, TenantStatus } from './consts';
 import { HttpStatusCode } from '@angular/common/http';
 
 @Component({
@@ -16,14 +16,16 @@ import { HttpStatusCode } from '@angular/common/http';
 })
 export class App {
   public readonly dataPlaceholder = 'N/A';
+  public readonly tenantAuthenticationTooltip = 'Tenant not authenticated';
+  public readonly tenantAuthorizationTooltip = 'Tenant not authorized';
 
   private readonly apiService = inject(ApiService);
   private readonly tenantService = inject(TenantService);
   private readonly toastrService = inject(ToastrService);
 
   readonly bodyTypeOptions: SelectOption[] = [
-    { value: 'text', displayName: 'Text' },
-    { value: 'keyvalue', displayName: 'Key-Value' }
+    { value: MessageBodyType[MessageBodyType.PlainText], displayName: 'Text' },
+    { value: MessageBodyType[MessageBodyType.KeyValue], displayName: 'Key-Value' }
   ];
 
   readonly feedSelectorTypeOptions: SelectOption[] = [
@@ -32,10 +34,12 @@ export class App {
   ];
 
   // control inputs
-  selectedBodyType = signal<string>('text');
+  selectedBodyType = signal<string>(MessageBodyType[MessageBodyType.PlainText]);
   selectedFeedSelectorType = signal<string>('slider');
   selectedFeedTimes = signal<number>(5);
-  selectedFeedTimesRange = signal<number>(50);
+  selectedFeedTimesRange = signal<number>(25);
+  messageTitle = signal<string>('');
+  messageBody = signal<string>('');
 
   // tenant auth
   isTenantAuthenticated = signal<boolean>(false);
@@ -56,6 +60,8 @@ export class App {
   // command statuses
   isCutPaperInProgress = signal<boolean>(false);
   isFeedPaperInProgress = signal<boolean>(false);
+  isPublishMessageInProgress = signal<boolean>(false);
+  isRepublishMessagesInProgress = signal<boolean>(false);
 
   async onTenantAuthSave(): Promise<void> {
     this.isTenantAuthInProgress.set(true);
@@ -153,11 +159,83 @@ export class App {
   onResetFeedPaperForm(): void {
     this.selectedFeedSelectorType.set('slider');
     this.selectedFeedTimes.set(5);
-    this.selectedFeedTimesRange.set(50);
+    this.selectedFeedTimesRange.set(25);
+  }
+
+  onPublishMessages(): void {
+    const messageBody: string = this.messageBody();
+
+    if (this.selectedBodyType() == MessageBodyType[MessageBodyType.KeyValue]) {
+      try {
+        const prettyJson: string = JSON.stringify(JSON.parse(messageBody), null, 2);
+        this.messageBody.set(prettyJson);
+      } catch {
+        this.toastrService.error('Publish message: Invalid message body');
+        return;
+      }
+    }
+
+    const message: NotificationMessage = {
+      id: undefined,
+      title: this.messageTitle(),
+      body: messageBody,
+      bodyType: this.selectedBodyType(),
+      origin: undefined,
+      timestamp: new Date().toISOString()
+    };
+
+    this.isPublishMessageInProgress.set(true);
+    
+    this.apiService.publishMessage(this.tenantService.tenantId, this.tenantService.tenantToken, message)
+      .subscribe((response) => {
+        if (response.status != HttpStatusCode.Ok as number) {
+          this.toastrService.error('Publish message: Failed');
+          this.isPublishMessageInProgress.set(false);
+          return;
+        }
+
+        this.toastrService.success('Publish message: Succeeded');
+        this.isPublishMessageInProgress.set(false);
+
+        this.reloadQueueStatusDashboard();
+      });
+  }
+
+  onResetPublishMessageForm(): void {
+    this.selectedBodyType = signal<string>(MessageBodyType[MessageBodyType.PlainText]);
+    this.messageTitle.set('');
+    this.messageBody.set('');
   }
 
   onRepublishMessages(): void {
-    // reload dashboard
+    this.isRepublishMessagesInProgress.set(true);
+    
+    this.apiService.republishMessages(this.tenantService.tenantId, this.tenantService.tenantToken)
+      .subscribe((response) => {
+        if (response.status != HttpStatusCode.Ok as number) {
+          this.toastrService.error('Republish messages: Failed');
+          this.isRepublishMessagesInProgress.set(false);
+          return;
+        }
+
+        this.toastrService.success('Republish messages: Succeeded');
+        this.isRepublishMessagesInProgress.set(false);
+
+        this.reloadQueueStatusDashboard();
+      });
+  }
+
+  reloadQueueStatusDashboard(): void {
+    if (this.tenantData?.role.toLowerCase() == 'admin') {
+      this.queueStatusData = undefined;
+      this.isQueueStatusLoaded.set(false);
+
+      this.apiService.getQueueStatuses(this.tenantService.tenantId, this.tenantService.tenantToken)
+        .subscribe((response) => {
+          this.queueStatusData = response.body || undefined;
+          this.isQueueStatusLoaded.set(true);
+        });
+    }
   }
 
   isTenantSaveButtonDisabled(): boolean {
@@ -174,11 +252,77 @@ export class App {
     );
   }
 
+  isMessagePublishingDisabled(): boolean {
+    return !this.hasValue(this.messageTitle()) || !this.hasValue(this.messageBody());
+  }
+
+  isFeedPaperDisabled(): boolean {
+    if (this.selectedFeedSelectorType() == 'custom') {
+      const customNTimes = this.selectedFeedTimes();
+      return customNTimes < 5 || customNTimes > 255
+    }
+
+    return false;
+  }
+
+  getTenantAuthSaveTooltip(): string {
+    if (!this.hasValue(this.tenantId()) || !this.hasValue(this.tenantToken())) {
+      return 'Tenant id and token required';
+    }
+
+    return '';
+  }
+
+  getTenantAuthTooltip(allowedRoles: string[]): string {
+    if (!this.isTenantAuthenticated()) {
+      return this.tenantAuthenticationTooltip;
+    }
+
+    if (!this.isTenantAuthorized(allowedRoles)) {
+      return this.tenantAuthorizationTooltip;
+    }
+
+    return '';
+  }
+
+  getPublishMessageTooltip(allowedRoles: string[]): string {
+    if (!this.isTenantAuthenticated()) {
+      return this.tenantAuthenticationTooltip;
+    }
+
+    if (!this.isTenantAuthorized(allowedRoles)) {
+      return this.tenantAuthorizationTooltip;
+    }
+
+    if (!this.hasValue(this.messageTitle()) || !this.hasValue(this.messageBody())) {
+      return 'Message title and body required';
+    }
+
+    return '';
+  }
+
+  getFeedPaperTooltip(allowedRoles: string[]): string {
+    if (!this.isTenantAuthenticated()) {
+      return this.tenantAuthenticationTooltip;
+    }
+
+    if (!this.isTenantAuthorized(allowedRoles)) {
+      return this.tenantAuthorizationTooltip;
+    }
+
+    const customNTimes = this.selectedFeedTimes();
+    if (this.selectedFeedSelectorType() == 'custom' && (customNTimes < 5 || customNTimes > 255)) {
+      return 'Valid n-times required';
+    }
+
+    return '';
+  }
+
   getBodyTypePlaceholder(): string {
     switch (this.selectedBodyType()) {
-      case 'text':
+      case MessageBodyType[MessageBodyType.PlainText]:
         return 'Enter message text';
-      case 'keyvalue':
+      case MessageBodyType[MessageBodyType.KeyValue]:
         return 'Enter JSON message, e.g., { "key": "value" }';
       default:
         return 'Enter message text';
@@ -243,6 +387,14 @@ export class App {
     return this.dataPlaceholder;
   }
 
+  getFullTenantId(): string {
+    if (this.tenantData) {
+      return this.tenantData.tenantId
+    }
+
+    return this.dataPlaceholder;
+  }
+
   getTenantRole(): string {
     if (!this.tenantData) {
       return this.dataPlaceholder;
@@ -260,5 +412,9 @@ export class App {
 
   getQueueStatusMesage(isOnline: boolean): string {
     return isOnline ? 'Online' : 'Offline';
+  }
+
+  hasValue(value: string): boolean {
+    return value !== null && value !== undefined && value.trim().length > 0;
   }
 }
