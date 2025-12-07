@@ -24,7 +24,10 @@ class NotificationMessage:
         if timestamp is None or isinstance(timestamp, datetime):
             self.timestamp: datetime = timestamp
         else:
-            self.timestamp: datetime = datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S")
+            try:
+                self.timestamp: datetime = datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S")
+            except:
+                self.timestamp: datetime = datetime.fromisoformat(timestamp)
 
     def __str__(self):
         return f"origin: {self.origin}, title: {self.title}"
