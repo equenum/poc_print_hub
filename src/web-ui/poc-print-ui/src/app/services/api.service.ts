@@ -1,7 +1,7 @@
 import { HttpClient, HttpErrorResponse, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { EnvService } from './env.service';
-import { GenericApiResponse, PrinterStatusData, QueueStatusData, TenantData, TenantRoleRequest } from '../interfaces';
+import { FeedPaperRequest, GenericApiResponse, PrinterStatusData, QueueStatusData, TenantData, TenantRoleRequest } from '../interfaces';
 import { catchError, Observable, of } from 'rxjs';
 
 @Injectable({providedIn: 'root'})
@@ -60,6 +60,25 @@ export class ApiService {
 
   sendCutPaper(tenantId: string, tenantToken: string): Observable<HttpResponse<GenericApiResponse> | HttpResponse<undefined>> {
     return this.httpClient.post<GenericApiResponse>(this.getFullUrl('printer/cut'), null,
+      { 
+        headers: this.buildHeaders(tenantId, tenantToken),
+        observe: 'response' as const
+      }
+    ).pipe(catchError((error: HttpErrorResponse) => {
+      return of(new HttpResponse({
+        body: undefined,
+        status: error.status,
+        statusText: error.statusText
+      }));
+    }));
+  }
+
+  sendFeedPaper(tenantId: string, tenantToken: string, nTimes: number): Observable<HttpResponse<GenericApiResponse> | HttpResponse<undefined>> {
+    var body: FeedPaperRequest = {
+      nTimes: nTimes
+    };
+
+    return this.httpClient.post<GenericApiResponse>(this.getFullUrl('printer/feed'), body,
       { 
         headers: this.buildHeaders(tenantId, tenantToken),
         observe: 'response' as const

@@ -35,6 +35,7 @@ export class App {
   selectedBodyType = signal<string>('text');
   selectedFeedSelectorType = signal<string>('slider');
   selectedFeedTimes = signal<number>(5);
+  selectedFeedTimesRange = signal<number>(50);
 
   // tenant auth
   isTenantAuthenticated = signal<boolean>(false);
@@ -54,6 +55,7 @@ export class App {
 
   // command statuses
   isCutPaperInProgress = signal<boolean>(false);
+  isFeedPaperInProgress = signal<boolean>(false);
 
   async onTenantAuthSave(): Promise<void> {
     this.isTenantAuthInProgress.set(true);
@@ -70,7 +72,7 @@ export class App {
         ? 'Tenant not found' 
         : 'Tenant data fetch error';
 
-      this.toastrService.error(`Auth failed: ${message}`);
+      this.toastrService.error(`Authentication: Failed, ${message}`);
       return;
     }
 
@@ -80,7 +82,7 @@ export class App {
     this.tenantId.set('');
     this.tenantToken.set('');
 
-    this.toastrService.success('Auth succeeded');
+    this.toastrService.success('Authentication: Succeeded');
 
     // reset dashboard data and status
     this.queueStatusData = undefined;
@@ -118,6 +120,40 @@ export class App {
         this.toastrService.success('Cut paper: Succeeded');
         this.isCutPaperInProgress.set(false);
       });
+  }
+
+  onFeedPaper(): void {
+    if (this.selectedFeedSelectorType()) {
+      const customNTimes = this.selectedFeedTimes();
+      if (customNTimes < 5 || customNTimes > 255) {
+        this.toastrService.error('Feed paper: Invalid input');
+        return;
+      }
+    }
+
+    this.isFeedPaperInProgress.set(true);
+
+    const nTimes: number = this.selectedFeedSelectorType() == 'slider' 
+      ? this.selectedFeedTimesRange() 
+      : this.selectedFeedTimes();
+    
+    this.apiService.sendFeedPaper(this.tenantService.tenantId, this.tenantService.tenantToken, nTimes)
+      .subscribe((response) => {
+        if (response.status != HttpStatusCode.Ok as number) {
+          this.toastrService.error('Feed paper: Failed');
+          this.isFeedPaperInProgress.set(false);
+          return;
+        }
+
+        this.toastrService.success('Feed paper: Succeeded');
+        this.isFeedPaperInProgress.set(false);
+      });
+  }
+
+  onResetFeedPaperForm(): void {
+    this.selectedFeedSelectorType.set('slider');
+    this.selectedFeedTimes.set(5);
+    this.selectedFeedTimesRange.set(50);
   }
 
   onRepublishMessages(): void {

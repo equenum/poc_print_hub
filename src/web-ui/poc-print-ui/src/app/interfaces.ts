@@ -42,6 +42,10 @@ export interface TenantRoleRequest {
     tenantId: string;
 }
 
+export interface FeedPaperRequest {
+    nTimes: number;
+}
+
 export interface GenericApiResponse {
     message: string;
     errors: string;
