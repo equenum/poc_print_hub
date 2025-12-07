@@ -77,23 +77,58 @@ export class ApiService {
       }));
   }
 
-  sendFeedPaper(tenantId: string, tenantToken: string, nTimes: number): Observable<HttpResponse<GenericApiResponse> | HttpResponse<undefined>> {
-    var body: FeedPaperRequest = {
-      nTimes: nTimes
-    };
+  sendFeedPaper(tenantId: string, tenantToken: string, nTimes: number):
+    Observable<HttpResponse<Interfaces.GenericApiResponse> | HttpResponse<undefined>> {
+      var body: Interfaces.FeedPaperRequest = {
+        nTimes: nTimes
+      };
 
-    return this.httpClient.post<GenericApiResponse>(this.getFullUrl('printer/feed'), body,
-      { 
-        headers: this.buildHeaders(tenantId, tenantToken),
-        observe: 'response' as const
-      }
-    ).pipe(catchError((error: HttpErrorResponse) => {
-      return of(new HttpResponse({
-        body: undefined,
-        status: error.status,
-        statusText: error.statusText
+      return this.httpClient.post<Interfaces.GenericApiResponse>(this.getFullUrl('printer/feed'), body,
+        { 
+          headers: this.buildHeaders(tenantId, tenantToken),
+          observe: 'response' as const
+        }
+      ).pipe(catchError((error: HttpErrorResponse) => {
+        return of(new HttpResponse({
+          body: undefined,
+          status: error.status,
+          statusText: error.statusText
+        }));
       }));
-    }));
+  }
+
+  publishMessage(tenantId: string, tenantToken: string, message: Interfaces.NotificationMessage):
+    Observable<HttpResponse<Interfaces.PublishMessageResponse> | HttpResponse<undefined>> {
+      message.origin = this.envService.messageOriginName;
+
+      return this.httpClient.post<Interfaces.PublishMessageResponse>(this.getFullUrl('queues/publish'), message,
+        { 
+          headers: this.buildHeaders(tenantId, tenantToken),
+          observe: 'response' as const
+        }
+      ).pipe(catchError((error: HttpErrorResponse) => {
+        return of(new HttpResponse({
+          body: undefined,
+          status: error.status,
+          statusText: error.statusText
+        }));
+      }));
+  }
+
+  republishMessages(tenantId: string, tenantToken: string):
+    Observable<HttpResponse<Interfaces.GenericApiResponse> | HttpResponse<undefined>> {
+      return this.httpClient.post<Interfaces.GenericApiResponse>(this.getFullUrl('queues/republish'), null,
+        { 
+          headers: this.buildHeaders(tenantId, tenantToken),
+          observe: 'response' as const
+        }
+      ).pipe(catchError((error: HttpErrorResponse) => {
+        return of(new HttpResponse({
+          body: undefined,
+          status: error.status,
+          statusText: error.statusText
+        }));
+      }));
   }
 
   private getFullUrl(relativePath: string): string {

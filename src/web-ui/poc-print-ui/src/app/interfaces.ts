@@ -51,3 +51,16 @@ export interface GenericApiResponse {
     message: string;
     errors: string;
 }
+
+export interface NotificationMessage {
+    id: string | undefined;
+    title: string;
+    body: string;
+    bodyType: string;
+    origin: string | undefined;
+    timestamp: string;
+}
+
+export interface PublishMessageResponse {
+    messageId: string;
+}

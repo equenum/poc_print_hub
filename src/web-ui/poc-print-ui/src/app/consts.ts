@@ -3,3 +3,8 @@ export enum TenantStatus {
   NonAuthenticated,
   NotFound
 }
+
+export enum MessageBodyType {
+  PlainText,
+  KeyValue
+}
