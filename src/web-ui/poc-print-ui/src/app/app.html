@@ -160,7 +160,7 @@
           <div id="tenant-token-hint" class="validator-hint hidden">Must not be whitespace</div>
         </div>
         <div class="card-actions justify-end pt-5">
-          <button (click)="onTenantAuthSave()" [disabled]="isTenantSaveButtonDisabled() || tenantTokenInput.invalid || tenantIdInput.invalid" class="btn btn-primary">
+          <button (click)="onTenantAuthSave()" [disabled]="isTenantSaveButtonDisabled() || isTenantAuthInProgress() || tenantTokenInput.invalid || tenantIdInput.invalid" class="btn btn-primary">
             <div class="w-10">
               @if (isTenantAuthInProgress()) {
                 <span class="loading loading-dots loading-md"></span>
@@ -261,7 +261,15 @@
         </h2>
         <div>Cut paper: feeds `n*6` times, then cuts</div>
         <div class="card-actions justify-end pt-5">
-          <button class="btn btn-primary" [disabled]="!isTenantAuthenticated() || !isTenantAuthorized(['Admin'])">Send</button>
+          <button (click)="onCutPaper()" class="btn btn-primary" [disabled]="!isTenantAuthenticated() || !isTenantAuthorized(['Admin']) || isCutPaperInProgress()">
+            <div class="w-10">
+              @if (isCutPaperInProgress()) {
+                <span class="loading loading-dots loading-md"></span>
+              } @else {
+                Send
+              }
+            </div>
+          </button>
         </div>
       </div>
     </div>

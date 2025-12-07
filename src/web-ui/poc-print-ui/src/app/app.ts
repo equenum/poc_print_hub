@@ -7,6 +7,7 @@ import { ApiService } from './services/api.service';
 import { TenantService } from './services/tenant.service';
 import { ToastrService } from 'ngx-toastr';
 import { TenantStatus } from './consts';
+import { HttpStatusCode } from '@angular/common/http';
 
 @Component({
   selector: 'app-root',
@@ -51,6 +52,9 @@ export class App {
   printerStatusData: PrinterStatusData | undefined;
   tenantData: TenantData | undefined;
 
+  // command statuses
+  isCutPaperInProgress = signal<boolean>(false);
+
   async onTenantAuthSave(): Promise<void> {
     this.isTenantAuthInProgress.set(true);
 
@@ -66,7 +70,7 @@ export class App {
         ? 'Tenant not found' 
         : 'Tenant data fetch error';
 
-      this.toastrService.error(message, 'Authentication failed');
+      this.toastrService.error(`Auth failed: ${message}`);
       return;
     }
 
@@ -76,7 +80,7 @@ export class App {
     this.tenantId.set('');
     this.tenantToken.set('');
 
-    this.toastrService.success('Authentication succeeded');
+    this.toastrService.success('Auth succeeded');
 
     // reset dashboard data and status
     this.queueStatusData = undefined;
@@ -98,6 +102,26 @@ export class App {
           this.isPrinterStatusLoaded.set(true);
         });
     }
+  }
+
+  onCutPaper(): void {
+    this.isCutPaperInProgress.set(true);
+    
+    this.apiService.sendCutPaper(this.tenantService.tenantId, this.tenantService.tenantToken)
+      .subscribe((response) => {
+        if (response.status != HttpStatusCode.Ok as number) {
+          this.toastrService.error('Cut paper: Failed');
+          this.isCutPaperInProgress.set(false);
+          return;
+        }
+
+        this.toastrService.success('Cut paper: Succeeded');
+        this.isCutPaperInProgress.set(false);
+      });
+  }
+
+  onRepublishMessages(): void {
+    // reload dashboard
   }
 
   isTenantSaveButtonDisabled(): boolean {

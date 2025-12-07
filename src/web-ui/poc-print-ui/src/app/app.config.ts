@@ -14,7 +14,8 @@ export const appConfig: ApplicationConfig = {
       toastComponent: ToastNoAnimation,
       timeOut: 5000,
       positionClass: 'toast-top-right',
-      preventDuplicates: true
+      preventDuplicates: true,
+      maxOpened: 1
     })
   ]
 };
