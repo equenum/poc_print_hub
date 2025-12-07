@@ -12,7 +12,7 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(withFetch()),
     provideToastr({
       toastComponent: ToastNoAnimation,
-      timeOut: 5000,
+      timeOut: 3000,
       positionClass: 'toast-top-right',
       preventDuplicates: true,
       maxOpened: 1

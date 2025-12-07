@@ -53,11 +53,7 @@ export class TenantService {
   }
 
   get isAuthenticated(): boolean {
-    if (
-      this.tenantData 
-      && this.hasValue(this.tenantData.tenantId) 
-      && this.hasValue(this.tenantData.role)
-    ) {
+    if (this.tenantData && this.hasValue(this.tenantData.tenantId) && this.hasValue(this.tenantData.role)) {
       return true;
     }
 
