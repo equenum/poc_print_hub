@@ -153,17 +153,14 @@
         </h2>
         <div>Tenant authentication</div>
         <div>
-          <input [(ngModel)]="tenantId" #tenantIdInput="ngModel" name="tenantIdInput" type="text" placeholder="Enter tenant id" class="input validator" maxlength="100" pattern=".*\S.*" />
-          <div id="tenant-id-hint" class="validator-hint hidden">Must not be whitespace</div>
+          <input [(ngModel)]="tenantId" type="text" placeholder="Enter tenant id" class="input" maxlength="100" />
         </div>
         <div>
-          <input [(ngModel)]="tenantToken" #tenantTokenInput="ngModel" name="tenantTokenInput" type="password" placeholder="Enter tenant token" class="input validator" maxlength="1000"
-            pattern=".*\S.*" />
-          <div id="tenant-token-hint" class="validator-hint hidden">Must not be whitespace</div>
+          <input [(ngModel)]="tenantToken" type="password" placeholder="Enter tenant token" class="input" maxlength="1000" />
         </div>
         <div class="card-actions justify-end pt-5">
           <div class="tooltip" [attr.data-tip]="getTenantAuthSaveTooltip()">
-            <button (click)="onTenantAuthSave()" [disabled]="isTenantSaveButtonDisabled() || isTenantAuthInProgress() || tenantTokenInput.invalid || tenantIdInput.invalid" class="btn btn-primary">
+            <button (click)="onTenantAuthSave()" [disabled]="isTenantSaveButtonDisabled() || isTenantAuthInProgress()" class="btn btn-primary">
               <div class="w-10">
                 @if (isTenantAuthInProgress()) {
                   <span class="loading loading-dots loading-md"></span>
@@ -198,7 +195,7 @@
         <textarea class="textarea w-full" [(ngModel)]="messageTitle" placeholder="Enter message title" maxlength="1000"></textarea>
         <textarea class="textarea w-full" [(ngModel)]="messageBody" [placeholder]="getBodyTypePlaceholder()" maxlength="10000"></textarea>
         <div class="card-actions justify-end pt-5">
-          <button (click)="onResetPublishMessageForm()" class="btn btn-secondary" [disabled]="!isTenantAuthenticated() || !isTenantAuthorized(['Admin', 'User']) || isPublishMessageInProgress() || isMessagePublishingDisabled()">Reset</button>
+          <button (click)="onResetPublishMessageForm()" class="btn btn-secondary" [disabled]="!isTenantAuthenticated() || !isTenantAuthorized(['Admin', 'User']) || isPublishMessageInProgress()">Reset</button>
           <div class="tooltip" [attr.data-tip]="getPublishMessageTooltip(['Admin', 'User'])">
             <button (click)="onPublishMessages()" class="btn btn-primary" [disabled]="!isTenantAuthenticated() || !isTenantAuthorized(['Admin', 'User']) || isPublishMessageInProgress() || isMessagePublishingDisabled()">
               <div class="w-10">
@@ -230,9 +227,7 @@
         </fieldset>
         @if (selectedFeedSelectorType() == 'custom')
         {
-        <input type="number" [(ngModel)]="selectedFeedTimes" class="input validator" required placeholder="Enter `n` times (5 to 255)" min="5" max="255"
-          title="Must be between be 5 to 255" />
-        <div class="validator-hint mt-0!">Must be between 5 to 255</div>
+        <input type="number" [(ngModel)]="selectedFeedTimes" class="input" placeholder="Enter `n` times (5 to 255)" min="5" max="255" />
         }
         @if (selectedFeedSelectorType() == 'slider')
         {
@@ -265,7 +260,7 @@
         </div>
         }
         <div class="card-actions justify-end pt-5">
-          <button (click)="onResetFeedPaperForm()" class="btn btn-secondary" [disabled]="!isTenantAuthenticated() || !isTenantAuthorized(['Admin']) || isFeedPaperInProgress() || isFeedPaperDisabled()">Reset</button>
+          <button (click)="onResetFeedPaperForm()" class="btn btn-secondary" [disabled]="!isTenantAuthenticated() || !isTenantAuthorized(['Admin']) || isFeedPaperInProgress()">Reset</button>
           <div class="tooltip" [attr.data-tip]="getFeedPaperTooltip(['Admin'])">
             <button (click)="onFeedPaper()" class="btn btn-primary" [disabled]="!isTenantAuthenticated() || !isTenantAuthorized(['Admin']) || isFeedPaperInProgress() || isFeedPaperDisabled()">
               <div class="w-10">

@@ -78,7 +78,7 @@ export class App {
         ? 'Tenant not found' 
         : 'Tenant data fetch error';
 
-      this.toastrService.error(`Authentication: Failed, ${message}`);
+      this.toastrService.error(`Authentication: ${message}`);
       return;
     }
 
@@ -239,7 +239,7 @@ export class App {
   }
 
   isTenantSaveButtonDisabled(): boolean {
-    return this.tenantId().length == 0 || this.tenantToken().length == 0;
+    return !this.hasValue(this.tenantId()) || !this.hasValue(this.tenantToken());
   }
 
   isTenantAuthorized(allowedRoles: string[]): boolean {
@@ -312,7 +312,7 @@ export class App {
 
     const customNTimes = this.selectedFeedTimes();
     if (this.selectedFeedSelectorType() == 'custom' && (customNTimes < 5 || customNTimes > 255)) {
-      return 'Valid n-times required';
+      return 'n-times must be between 5 to 255';
     }
 
     return '';
