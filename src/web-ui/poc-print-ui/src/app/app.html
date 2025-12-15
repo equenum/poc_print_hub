@@ -227,37 +227,37 @@
         </fieldset>
         @if (selectedFeedSelectorType() == 'custom')
         {
-        <input type="number" [(ngModel)]="selectedFeedTimes" class="input" placeholder="Enter `n` times (5 to 255)" min="5" max="255" />
+          <input type="number" [(ngModel)]="selectedFeedTimes" class="input" placeholder="Enter `n` times (5 to 255)" min="5" max="255" />
         }
         @if (selectedFeedSelectorType() == 'slider')
         {
-        <div class="w-full max-w-xs">
-          <input type="range" [(ngModel)]="selectedFeedTimesRange" min="25" max="250" value="50" class="range w-116" step="25" />
-          <div class="flex justify-between px-3.5 mt-2 text-xs w-116">
-            <span>|</span>
-            <span>|</span>
-            <span>|</span>
-            <span>|</span>
-            <span>|</span>
-            <span>|</span>
-            <span>|</span>
-            <span>|</span>
-            <span>|</span>
-            <span>|</span>
+          <div class="w-full max-w-xs">
+            <input type="range" [(ngModel)]="selectedFeedTimesRange" min="25" max="250" value="50" class="range w-116" step="25" />
+            <div class="flex justify-between px-3.5 mt-2 text-xs w-116">
+              <span>|</span>
+              <span>|</span>
+              <span>|</span>
+              <span>|</span>
+              <span>|</span>
+              <span>|</span>
+              <span>|</span>
+              <span>|</span>
+              <span>|</span>
+              <span>|</span>
+            </div>
+            <div class="flex justify-between px-2.5 mt-2 text-xs w-116">
+              <span>&nbsp;1</span>
+              <span>&nbsp;2</span>
+              <span>&nbsp;3</span>
+              <span>&nbsp;4</span>
+              <span>&nbsp;5</span>
+              <span>&nbsp;6</span>
+              <span>&nbsp;7</span>
+              <span>&nbsp;8</span>
+              <span>&nbsp;9</span>
+              <span>10</span>
+            </div>
           </div>
-          <div class="flex justify-between px-2.5 mt-2 text-xs w-116">
-            <span>&nbsp;1</span>
-            <span>&nbsp;2</span>
-            <span>&nbsp;3</span>
-            <span>&nbsp;4</span>
-            <span>&nbsp;5</span>
-            <span>&nbsp;6</span>
-            <span>&nbsp;7</span>
-            <span>&nbsp;8</span>
-            <span>&nbsp;9</span>
-            <span>10</span>
-          </div>
-        </div>
         }
         <div class="card-actions justify-end pt-5">
           <button (click)="onResetFeedPaperForm()" class="btn btn-secondary" [disabled]="!isTenantAuthenticated() || !isTenantAuthorized(['Admin']) || isFeedPaperInProgress()">Reset</button>
