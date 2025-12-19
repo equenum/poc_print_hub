@@ -9,7 +9,7 @@ services:
         && gunicorn --bind 0.0.0.0:8000 --workers 3 pocprintapi.wsgi:application
       "
     container_name: printhub-api
-    restart: always
+    restart: unless-stopped
     ports:
       - "8000:8000"
     environment:
@@ -28,7 +28,7 @@ services:
     image: printhub-celery-beat:latest
     command: "celery -A pocprintapi beat -l info"
     container_name: printhub-celery-beat
-    restart: always
+    restart: unless-stopped
     environment:
       - POC_PRINT_HUB_RABBIT_MQ_HOST=
       - POC_PRINT_HUB_RABBIT_MQ_USERNAME=
@@ -40,7 +40,7 @@ services:
     image: printhub-celery-worker:latest
     command: "celery -A pocprintapi worker -l INFO"
     container_name: printhub-celery-worker
-    restart: always
+    restart: unless-stopped
     environment:
       - POC_PRINT_HUB_RABBIT_MQ_HOST=
       - POC_PRINT_HUB_RABBIT_MQ_USERNAME=
