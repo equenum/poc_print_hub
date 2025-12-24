@@ -14,4 +14,8 @@ RUN ng build --configuration=production
 # Stage 2: Prepare Nginx to serve static files
 FROM nginx:alpine
 
-COPY --from=build app/dist/poc-print-ui /usr/share/nginx/html
+RUN apk add --no-cache bash
+SHELL ["/bin/bash", "-c"]
+
+COPY --from=build app/dist/poc-print-ui/browser /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/nginx.conf
