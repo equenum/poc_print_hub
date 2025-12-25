@@ -1,19 +1,22 @@
 services:
   frontend:
     build:
-      context: ./web-ui
+      context: ./web-ui/poc-print-ui
     image: printhub-ui:latest
     command: bash -c "
-        envsubst '${ENV_PROD} ${ENV_API_URL}' < /usr/share/nginx/html/assets/env.template.js > /usr/share/nginx/html/assets/env.js
-        && exec nginx -g 'daemon off;'
+        envsubst < /usr/share/nginx/html/assets/env.template.js > /usr/share/nginx/html/assets/env.js
+        && exec nginx -c /etc/nginx/nginx.conf -g 'daemon off;'
       "
     container_name: printhub-web-ui
     restart: unless-stopped
     ports:
-      - "4200:80"
+      - "8080:8080"
     environment:
       - ENV_PROD=true
-      - ENV_API_URL=127.0.0.1:8000
+      - ENV_API_URL=http://127.0.0.1:8000/api
+      - ENV_TENANT_ID_HEADER=Pph-Tenant-Id
+      - ENV_TENANT_TOKEN_HEADER=Pph-Tenant-Token
+      - ENV_MESSAGE_ORIGIN_NAME=print-hub-web-ui
   backend:
     build:
       context: ./api
@@ -35,8 +38,8 @@ services:
       - DATABASES_POSTGRESQL_USER=
       - DATABASES_POSTGRESQL_PASSWORD=
       - DATABASES_POSTGRESQL_HOST=
-      - DJANGO_ALLOWED_HOSTS=127.0.0.1	    # comma separated for multiple
-      - CORS_ALLOWED_ORIGINS=127.0.0.1:4200	# comma separated for multiple
+      - DJANGO_ALLOWED_HOSTS=127.0.0.1	            # comma separated for multiple
+      - CORS_ALLOWED_ORIGINS=http://127.0.0.1:8080	# comma separated for multiple
   celery_beat:
     build:
       context: ./api
