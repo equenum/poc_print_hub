@@ -23,7 +23,7 @@
               @if (!isTenantAuthenticated() || !isTenantAuthorized(['Admin'])) {
                 {{ dataPlaceholder }}
               }
-              @else if (isPrinterStatusLoaded()) {
+              @else if (isPrinterStatusLoaded() && printerStatusData) {
                 {{ getPrinterName() }}
               } @else {
                 <span class="loading loading-dots loading-xl"></span>
@@ -36,7 +36,7 @@
               @if (!isTenantAuthenticated() || !isTenantAuthorized(['Admin'])) {
                 {{ dataPlaceholder }}
               }
-              @else if (isPrinterStatusLoaded()) {
+              @else if (isPrinterStatusLoaded() && printerStatusData) {
                 {{ getPrinterStatus() }}
               } @else {
                 <span class="loading loading-dots loading-xl"></span>
@@ -49,7 +49,7 @@
               @if (!isTenantAuthenticated() || !isTenantAuthorized(['Admin'])) {
                 {{ dataPlaceholder }}
               }
-              @else if (isPrinterStatusLoaded()) {
+              @else if (isPrinterStatusLoaded() && printerStatusData) {
                 {{ getPrinterPaperStatus() }}
               } @else {
                 <span class="loading loading-dots loading-xl"></span>
@@ -147,6 +147,19 @@
             </div>
           </div>
         </div>
+        <div class="card-actions justify-end pt-5">
+          <div class="tooltip" [attr.data-tip]="getDashboardReloadTooltip(['Admin'])">
+            <button (click)="onDashboardReload()" [disabled]="!isTenantAuthenticated() || !isTenantAuthorized(['Admin'])" class="btn btn-primary">
+              <div class="w-12">
+                @if (isTenantAuthInProgress() || isQueueStatusReloadInProgress() || isPrinterStatusReloadInProgress()) {
+                  <span class="loading loading-dots loading-md"></span>
+                } @else {
+                  Reload
+                }
+              </div>
+            </button>
+          </div>
+        </div>
         <div class="divider"></div>
         <h2 class="card-title">
           Settings
@@ -161,7 +174,7 @@
         <div class="card-actions justify-end pt-5">
           <div class="tooltip" [attr.data-tip]="getTenantAuthSaveTooltip()">
             <button (click)="onTenantAuthSave()" [disabled]="isTenantSaveButtonDisabled() || isTenantAuthInProgress()" class="btn btn-primary">
-              <div class="w-10">
+              <div class="w-12">
                 @if (isTenantAuthInProgress()) {
                   <span class="loading loading-dots loading-md"></span>
                 } @else {
@@ -198,7 +211,7 @@
           <button (click)="onResetPublishMessageForm()" class="btn btn-secondary" [disabled]="!isTenantAuthenticated() || !isTenantAuthorized(['Admin', 'User']) || isPublishMessageInProgress()">Reset</button>
           <div class="tooltip" [attr.data-tip]="getPublishMessageTooltip(['Admin', 'User'])">
             <button (click)="onPublishMessages()" class="btn btn-primary" [disabled]="!isTenantAuthenticated() || !isTenantAuthorized(['Admin', 'User']) || isPublishMessageInProgress() || isMessagePublishingDisabled()">
-              <div class="w-10">
+              <div class="w-12">
                 @if (isPublishMessageInProgress()) {
                   <span class="loading loading-dots loading-md"></span>
                 } @else {
@@ -263,7 +276,7 @@
           <button (click)="onResetFeedPaperForm()" class="btn btn-secondary" [disabled]="!isTenantAuthenticated() || !isTenantAuthorized(['Admin']) || isFeedPaperInProgress()">Reset</button>
           <div class="tooltip" [attr.data-tip]="getFeedPaperTooltip(['Admin'])">
             <button (click)="onFeedPaper()" class="btn btn-primary" [disabled]="!isTenantAuthenticated() || !isTenantAuthorized(['Admin']) || isFeedPaperInProgress() || isFeedPaperDisabled()">
-              <div class="w-10">
+              <div class="w-12">
                 @if (isFeedPaperInProgress()) {
                   <span class="loading loading-dots loading-md"></span>
                 } @else {
@@ -285,7 +298,7 @@
         <div class="card-actions justify-end pt-5">
           <div class="tooltip" [attr.data-tip]="getTenantAuthTooltip(['Admin'])">
             <button (click)="onCutPaper()" class="btn btn-primary" [disabled]="!isTenantAuthenticated() || !isTenantAuthorized(['Admin']) || isCutPaperInProgress()">
-              <div class="w-10">
+              <div class="w-12">
                 @if (isCutPaperInProgress()) {
                   <span class="loading loading-dots loading-md"></span>
                 } @else {
@@ -307,7 +320,7 @@
         <div class="card-actions justify-end pt-5">
           <div class="tooltip" [attr.data-tip]="getTenantAuthTooltip(['Admin'])">
             <button (click)="onRepublishMessages()" class="btn btn-primary" [disabled]="!isTenantAuthenticated() || !isTenantAuthorized(['Admin']) || isRepublishMessagesInProgress()">
-              <div class="w-10">
+              <div class="w-12">
                 @if (isRepublishMessagesInProgress()) {
                   <span class="loading loading-dots loading-md"></span>
                 } @else {

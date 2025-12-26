@@ -51,6 +51,8 @@ export class App {
   // dashboard status
   isQueueStatusLoaded = signal<boolean>(false);
   isPrinterStatusLoaded = signal<boolean>(false);
+  isQueueStatusReloadInProgress = signal<boolean>(false);
+  isPrinterStatusReloadInProgress = signal<boolean>(false);
 
   // dashboard data
   queueStatusData: QueueStatusData | undefined;
@@ -110,6 +112,25 @@ export class App {
           this.isPrinterStatusLoaded.set(true);
         });
     }
+  }
+
+  onDashboardReload(): void {
+    this.queueStatusData = undefined;
+    this.printerStatusData = undefined;
+    this.isQueueStatusReloadInProgress.set(true);
+    this.isPrinterStatusReloadInProgress.set(true);
+
+    this.apiService.getQueueStatuses(this.tenantService.tenantId, this.tenantService.tenantToken)
+      .subscribe((response) => {
+        this.queueStatusData = response.body || undefined;
+        this.isQueueStatusReloadInProgress.set(false);
+      });
+
+    this.apiService.getPrinterStatus(this.tenantService.tenantId, this.tenantService.tenantToken)
+      .subscribe((response) => {
+        this.printerStatusData = response.body || undefined;
+        this.isPrinterStatusReloadInProgress.set(false);
+      });
   }
 
   onCutPaper(): void {
@@ -318,6 +339,18 @@ export class App {
     return '';
   }
 
+  getDashboardReloadTooltip(allowedRoles: string[]): string {
+    if (!this.isTenantAuthenticated()) {
+      return this.tenantAuthenticationTooltip;
+    }
+
+    if (!this.isTenantAuthorized(allowedRoles)) {
+      return this.tenantAuthorizationTooltip;
+    }
+
+    return '';
+  }
+
   getBodyTypePlaceholder(): string {
     switch (this.selectedBodyType()) {
       case MessageBodyType[MessageBodyType.PlainText]:
@@ -337,7 +370,7 @@ export class App {
 
   getPrinterStatus(): string {
     return this.printerStatusData
-      ? this.getQueueStatusMesage(this.printerStatusData.isOnline)
+      ? this.getStatusMesage(this.printerStatusData.isOnline)
       : this.dataPlaceholder;
   }
 
@@ -351,9 +384,9 @@ export class App {
     if (this.queueStatusData) {
       switch (name) {
         case 'print':
-          return this.getQueueStatusMesage(this.queueStatusData.print.isOnline);
+          return this.getStatusMesage(this.queueStatusData.print.isOnline);
         case 'error':
-          return this.getQueueStatusMesage(this.queueStatusData.deadLetter.isOnline);
+          return this.getStatusMesage(this.queueStatusData.deadLetter.isOnline);
         default:
           return this.dataPlaceholder;
       }
@@ -410,7 +443,7 @@ export class App {
     }
   }
 
-  getQueueStatusMesage(isOnline: boolean): string {
+  getStatusMesage(isOnline: boolean): string {
     return isOnline ? 'Online' : 'Offline';
   }
 
