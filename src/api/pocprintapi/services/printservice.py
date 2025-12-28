@@ -12,6 +12,7 @@ from pocprintapi.models import NotificationMessage, NotificationBodyType
 class PrintService:
     MIN_FEED_N: int = 5
     MAX_FEED_N: int = 255
+    PRINTER_NAME: str = "RP326"
 
     def publish(self, request_body: bytes) -> Response:
         """Publishes notification message to RabbitMQ"""
@@ -74,10 +75,11 @@ class PrintService:
         except Exception as ex:
             return Response(
                 {
-                    "message": "Failed to fetch printer status",
-                    "errors": f"{ex}"
+                    "name": self.PRINTER_NAME,
+                    "isOnline": False,
+                    "paperStatus": "N/A"
                 }, 
-                status.HTTP_500_INTERNAL_SERVER_ERROR
+                status.HTTP_200_OK
             )
         finally:
             if net_print is not None:
@@ -85,7 +87,7 @@ class PrintService:
 
         return Response(
             {
-                "name": "RP326",
+                "name": self.PRINTER_NAME,
                 "isOnline": is_online,
                 "paperStatus": paper_status_text
             }, 
