@@ -26,3 +26,50 @@ Request examples [here](src/api/pocprintapi_queries/queries.md). Make sure to cr
 |---|---|---|
 | `admin-test-id` | `admin-test-token` | ADMIN |
 | `user-test-id` | `user-test-token` | USER |
+
+### Tech stack
+
+### Configuration
+
+#### Environment variables
+
+| Name | Default Value | Notes |
+|---|---|---|
+| SECRET_KEY | `by-using-default-secrets-I-am-running-away-from-my-responsibilities-and-it-feels-good` | `string` Make sure to generate your own, instructions below |
+| DEBUG | `False` | `bool` |
+| POC_PRINT_HUB_TENANT_AUTH_ENABLED | `True` | `bool` If enabled, consider setting up a super user for convinience. Instructions on that and how to use the auth below |
+| POC_PRINT_HUB_RABBIT_MQ_HOST | - | `string` |
+| POC_PRINT_HUB_RABBIT_MQ_USERNAME | - | `string` |
+| POC_PRINT_HUB_RABBIT_MQ_PASSWORD | - | `string` |
+| POC_PRINT_HUB_RABBIT_MQ_QUEUE_NAME | `poc_print_hub` | `string` |
+| POC_PRINT_HUB_RABBIT_MQ_QUEUE_DURABLE | `True` | `bool` |
+| POC_PRINT_HUB_RABBIT_MQ_QUEUE_BATCH_SIZE | `10` | `int` |
+| POC_PRINT_HUB_RABBIT_MQ_DEAD_QUEUE_NAME | `poc_print_hub_dead_letter` | `string` |
+| POC_PRINT_HUB_RABBIT_MQ_DEAD_QUEUE_DURABLE | `True` | `bool` |
+| POC_PRINT_HUB_QUEUE_SCHEDULE_SEC | `5.0` | `float` |
+| POC_PRINT_HUB_QUEUE_MAX_RETRIES | `3` | `int` |
+| POC_PRINT_HUB_QUEUE_RETRY_DELAY_SEC | `3` | `int` |
+| POC_PRINT_HUB_QUEUE_TIME_LIMIT_SEC | `300` | `int` |
+| POC_PRINT_HUB_PRINTER_HOST | - | `string` |
+| POC_PRINT_HUB_PRINTER_MESSAGE_SEPARATOR | `----------` | `string` Defines a piece of text that separates messages on paper |
+| POC_PRINT_HUB_PRINTER_CHECK_PAPER_STATUS | `True` | `bool` If enabled, printer paper status is taken into account when checking if printer has adequate amount of paper available before printing. Otherwise, messages will be sent to be printed no matter the paper status |
+| ALLOWED_HOSTS | `localhost` | `string` Comma separated list (e.g., `IP1,IP2`). If hosted not on `localhost`, make sure to include your server IP (use `127.0.0.1` + optionally, your server IP for Docker hosting) |
+| CORS_ALLOWED_ORIGINS | `http://localhost:4200` | `string` Comma separated list (e.g., `IP1,IP2`). `http://localhost:4200` is default `poc-print-ui` IP and port. If hosted not on `localhost`, make sure to include your IP |
+
+#### How to generate a custom SECRET_KEY value
+
+Code:
+
+```python
+import os
+import base64
+
+new_key = base64.urlsafe_b64encode(os.urandom(64))
+print(new_key)
+```
+
+Python shell:
+
+```shell
+python -c "import os; import base64; new_key = base64.urlsafe_b64encode(os.urandom(64)); print(new_key)"
+```
