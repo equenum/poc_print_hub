@@ -108,3 +108,39 @@ python -c "import os; import base64; new_key = base64.urlsafe_b64encode(os.urand
 ```python
 raise NotImplementedException("Coming soon...")
 ```
+
+## Attribution
+
+### poc-print-api
+
+| Package | License & Copyright |
+|---|---|
+| [`celery`](https://pypi.org/project/celery/) | [Link](https://github.com/celery/celery/?tab=License-1-ov-file#readme) |
+| [`Django`](https://pypi.org/project/Django/) | [Link](https://github.com/django/django/blob/main/LICENSE) |
+| [`django-model-utils`](https://pypi.org/project/django-model-utils/) | [Link](https://github.com/jazzband/django-model-utils/blob/master/LICENSE.txt) |
+| [`djangorestframework`](https://pypi.org/project/djangorestframework/) | [Link](https://github.com/encode/django-rest-framework/blob/main/LICENSE.md) |
+| [`gunicorn`](https://pypi.org/project/gunicorn/) | [Link](https://github.com/benoitc/gunicorn/blob/master/LICENSE) |
+| [`pika`](https://pypi.org/project/pika/) | [Link](https://github.com/pika/pika/blob/main/LICENSE) |
+| [`python-dotenv`](https://pypi.org/project/python-dotenv/) | [Link](https://github.com/theskumar/python-dotenv/blob/main/LICENSE) |
+| [`python-escpos`](https://pypi.org/project/python-escpos/) | [Link](https://github.com/python-escpos/python-escpos/blob/master/LICENSE) |
+| [`psycopg2-binary`](https://pypi.org/project/psycopg2-binary/) | [Link](https://github.com/psycopg/psycopg2/blob/master/LICENSE) |
+| [`whitenoise`](https://pypi.org/project/whitenoise/) | [Link](https://github.com/evansd/whitenoise/blob/main/LICENSE) |
+| [`django-cors-headers`](https://pypi.org/project/django-cors-headers/) | [Link](https://github.com/adamchainz/django-cors-headers/blob/main/LICENSE) |
+
+### poc-print-ui
+
+| Package | License & Copyright |
+|---|---|
+| [`tailwindcss`](https://www.npmjs.com/package/tailwindcss) | [Link](https://github.com/tailwindlabs/tailwindcss/blob/main/LICENSE) |
+| [`daisyui`](https://www.npmjs.com/package/daisyui) | [Link](https://github.com/saadeghi/daisyui/blob/master/LICENSE) |
+| [`express`](https://www.npmjs.com/package/express) | [Link](https://github.com/expressjs/express/blob/master/LICENSE) |
+| [`ngx-toastr`](https://www.npmjs.com/package/ngx-toastr) | [Link](https://github.com/scttcper/ngx-toastr/blob/master/LICENSE) |
+| [`postcss`](https://www.npmjs.com/package/postcss) | [Link](https://github.com/postcss/postcss/blob/main/LICENSE) |
+| [`rxjs`](https://www.npmjs.com/package/rxjs) | [Link](https://github.com/ReactiveX/rxjs/blob/master/LICENSE.txt) |
+| [`tailwindcss`](https://www.npmjs.com/package/tailwindcss) | [Link](https://github.com/tailwindlabs/tailwindcss/blob/main/LICENSE) |
+| [`tslib`](https://www.npmjs.com/package/tslib) | [Link](https://github.com/microsoft/tslib/blob/main/LICENSE.txt) |
+
+### poc-print-cli (Coming soon)
+
+| Package | License & Copyright |
+|---|---|
