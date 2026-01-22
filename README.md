@@ -29,6 +29,13 @@ Request examples [here](src/api/pocprintapi_queries/queries.md). Make sure to cr
 
 ### Tech stack
 
+- [Django 5](https://docs.djangoproject.com/en/6.0/releases/5.0/)
+- [Celery](https://docs.celeryq.dev/en/v5.5.3/django/first-steps-with-django.html) + [Celery Beat](https://docs.celeryq.dev/en/main/userguide/periodic-tasks.html) for task scheduling
+- [WhiteNoise](https://whitenoise.readthedocs.io/en/stable/django.html) for static file serving
+- [Gunicorn](https://gunicorn.org/) as WSGI server
+- [PostgreSQL](https://www.postgresql.org/docs/)
+- [RabbitMQ](https://www.rabbitmq.com/docs)
+
 ### Configuration
 
 #### Environment variables
@@ -72,4 +79,32 @@ Python shell:
 
 ```shell
 python -c "import os; import base64; new_key = base64.urlsafe_b64encode(os.urandom(64)); print(new_key)"
+```
+
+## poc-print-ui
+
+![PrintHub Web IU](assets/poc-print-ui.png)
+
+### Tech stack
+
+- [Angular 20](https://v20.angular.dev/overview#develop-applications-faster-than-ever)
+- [DaisyUI](https://daisyui.com/docs/intro/) / [Tailwind CSS](https://tailwindcss.com/docs/installation/using-vite)
+- [Nginx](https://nginx.org/en/docs/)
+
+### Configuration
+
+#### Environment variables
+
+| Name | Default Value | Notes |
+|---|---|---|
+| ENV_PROD | - | Should be `true` for Docker hosting |
+| ENV_API_URL | - | `http://127.0.0.1:8000/api` for running locally |
+| ENV_TENANT_ID_HEADER | - | Has to be `Pph-Tenant-Id` |
+| ENV_TENANT_TOKEN_HEADER | - | Has to be `Pph-Tenant-Token` |
+| ENV_MESSAGE_ORIGIN_NAME | - | Defines message origin that is going to be presented as part of printed messages. For example, `print-hub-web-ui` |
+
+## poc-print-cli
+
+```python
+raise NotImplementedException("Coming soon...")
 ```
