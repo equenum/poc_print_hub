@@ -109,6 +109,106 @@ python -c "import os; import base64; new_key = base64.urlsafe_b64encode(os.urand
 raise NotImplementedException("Coming soon...")
 ```
 
+## Deployment instructions
+
+### Prerequisites
+- [Docker](https://docs.docker.com/engine/install/) + [Docker Compose](https://docs.docker.com/compose/install/).
+- [PostgreSQL](https://www.postgresql.org/download/) instance: if hosted not on `localhost`, make sure to configure the engine to accept external requests.
+- [RabbitMQ](https://www.rabbitmq.com/docs/download) cluster.
+- LAN-enabled POC Thermal Printer: ideally with a static IP; this solution was developed against and tested on [Rongta RP326](https://www.rongtatech.com/rp326-80mm-thermal-printer-for-receipt-printing_p68.html); the list of supported makes and models [here](https://python-escpos.readthedocs.io/en/latest/printer_profiles/available-profiles.html).
+
+### Deployment
+
+The following instructions were tested against a `Debian “bookworm"` server instance, but should work for `Debian`-based distros with no changes and for `MacOS` and `Windows` with minor adjustments.
+
+#### Pure Docker
+
+Navigate to [docker-compose.yml](src/docker-compose.yml), populate values for the environment variables, then run:
+
+```shell
+sudo docker compose up --build --detach
+```
+
+Navigate to:
+- `http://127.0.0.1:8000/admin/` to access the Web-API Admin page.
+- `http://127.0.0.1:8080/` to access the PrintHub UI page.
+
+#### Docker via Portainer
+
+For extra convenience, we can use [Portainer](https://www.portainer.io/). Make sure you have it [deployed](https://docs.portainer.io/start/install-ce/server/docker/linux#docker-compose) before proceeding.
+
+Navigate to [docker-compose.yml](src/docker-compose.yml) and run:
+```shell
+sudo docker compose build
+```
+
+Now, in `Portainer` interface navigate to Stacks and deploy a new one with the following configuration via the `Web Editor` after populating values for the environment variables:
+
+```yml
+services:
+  frontend:
+    image: printhub-ui:latest
+    command: bash -c "
+        envsubst < /usr/share/nginx/html/assets/env.template.js > /usr/share/nginx/html/assets/env.js
+        && exec nginx -c /etc/nginx/nginx.conf -g 'daemon off;'
+      "
+    container_name: printhub-web-ui
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - ENV_PROD=true
+      - ENV_API_URL=http://127.0.0.1:8000/api
+      - ENV_TENANT_ID_HEADER=Pph-Tenant-Id
+      - ENV_TENANT_TOKEN_HEADER=Pph-Tenant-Token
+      - ENV_MESSAGE_ORIGIN_NAME=print-hub-web-ui
+  backend:
+    image: printhub-api:latest
+    command: bash -c "
+        python manage.py migrate
+        && python manage.py collectstatic --noinput
+        && gunicorn --bind 0.0.0.0:8000 --workers 3 pocprintapi.wsgi:application
+      "
+    container_name: printhub-api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - POC_PRINT_HUB_RABBIT_MQ_HOST=
+      - POC_PRINT_HUB_RABBIT_MQ_USERNAME=
+      - POC_PRINT_HUB_RABBIT_MQ_PASSWORD=
+      - POC_PRINT_HUB_PRINTER_HOST=
+      - DATABASES_POSTGRESQL_USER=
+      - DATABASES_POSTGRESQL_PASSWORD=
+      - DATABASES_POSTGRESQL_HOST=
+      - DJANGO_ALLOWED_HOSTS=127.0.0.1	            # comma separated for multiple
+      - CORS_ALLOWED_ORIGINS=http://localhost:8080	# comma separated for multiple
+  celery_beat:
+    image: printhub-celery-beat:latest
+    command: "celery -A pocprintapi beat -l info"
+    container_name: printhub-celery-beat
+    restart: unless-stopped
+    environment:
+      - POC_PRINT_HUB_RABBIT_MQ_HOST=
+      - POC_PRINT_HUB_RABBIT_MQ_USERNAME=
+      - POC_PRINT_HUB_RABBIT_MQ_PASSWORD=
+      - POC_PRINT_HUB_PRINTER_HOST=
+  celery_worker:
+    image: printhub-celery-worker:latest
+    command: "celery -A pocprintapi worker -l INFO"
+    container_name: printhub-celery-worker
+    restart: unless-stopped
+    environment:
+      - POC_PRINT_HUB_RABBIT_MQ_HOST=
+      - POC_PRINT_HUB_RABBIT_MQ_USERNAME=
+      - POC_PRINT_HUB_RABBIT_MQ_PASSWORD=
+      - POC_PRINT_HUB_PRINTER_HOST=
+```
+
+Navigate to:
+- `http://127.0.0.1:8000/admin/` to access the Web-API Admin page.
+- `http://127.0.0.1:8080/` to access the PrintHub UI page.
+
 ## Attribution
 
 ### poc-print-api
