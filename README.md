@@ -1,26 +1,26 @@
 # poc_print_hub
 
-Simple, yet robust self-hosted solution for delivering messages/notifications via a network printer. Intended primary use is, but not limited to, serving as a notification sink for a homelab infrastructure, receiving and printing notifications in the privacy of a local network.
+Simple, yet robust self-hosted solution for delivering messages/notifications via a network printer. Its primary intended use is, but not limited to, serving as a notification sink for a homelab infrastructure, receiving and printing notifications in the privacy of a local network.
 
 ![Solution architecture diagram](assets/solution_architecture_diagram.png)
 
 ## poc-print-api
 
-Web-API + Admin page, enables print message publishing/processing, tenant authentication, as well as printer communication via the network and printer function control (get status, feed paper, cut paper, etc.).
+Web-API + Admin page, enables print message publishing and processing, tenant authentication, as well as printer communication and function control via the network (get status, feed paper, cut paper, etc.).
 
 ### Endpoints
 
 | Verb | Url | Allowed Tenant Roles | Notes |
 |---|---|---|---|
 | `POST` | `api/queues/publish` | ADMIN, USER | Publishes messages for printing |
-| `POST` | `api/queues/republish` | ADMIN | Republishes all messages from `error` to `print` queue |
-| `GET` | `api/queues/status` | ADMIN | Returns `print` and `error` queue statuses: `isOnline`, `count` |
-| `GET` | `api/printer/status` | ADMIN | Returns printer status: `name`, `isOnline`, `paperStatus` |
+| `POST` | `api/queues/republish` | ADMIN | Republishes all messages from the `error` queue to the `print` queue |
+| `GET` | `api/queues/status` | ADMIN | Returns `print` and `error` queue statuses: `isOnline` and `count` |
+| `GET` | `api/printer/status` | ADMIN | Returns printer status: `name`, `isOnline`, and `paperStatus` |
 | `POST` | `api/printer/feed` | ADMIN | Feeds printer paper `n_times` |
 | `POST` | `api/printer/cut` | ADMIN | Cuts paper (feeds `n*6` times, then cuts) |
-| `POST` | `api/tenant/role` | ADMIN, USER | Returns tenant role: `tenantId`, `role` |
+| `POST` | `api/tenant/role` | ADMIN, USER | Returns tenant role: `tenantId` and `role` |
 
-Request examples [here](src/api/pocprintapi_queries/queries.md). Notice that requests there include the following headers: `PPH-Tenant-Id` and `PPH-Tenant-Token`. These are required for tenant-based auth, if it is enabled (`POC_PRINT_HUB_TENANT_AUTH_ENABLED:True`). Make sure to create test tenant entries before using the queries (best done via the `Admin` page, instructions below):
+Request examples [here](src/api/pocprintapi_queries/queries.md). Note that requests include the following headers: `PPH-Tenant-Id` and `PPH-Tenant-Token`. These are required for tenant-based auth, if it is enabled (`POC_PRINT_HUB_TENANT_AUTH_ENABLED: True`). Ensure test tenant entries are created before using the queries (best done via the `Admin` page; instructions below):
 
 | Tenant Id | Tenant Token | Role |
 |---|---|---|
@@ -59,9 +59,9 @@ Request examples [here](src/api/pocprintapi_queries/queries.md). Notice that req
 | POC_PRINT_HUB_QUEUE_TIME_LIMIT_SEC | `300` | `int` |
 | POC_PRINT_HUB_PRINTER_HOST | - | `string` |
 | POC_PRINT_HUB_PRINTER_MESSAGE_SEPARATOR | `----------` | `string` Defines a piece of text that separates messages on paper |
-| POC_PRINT_HUB_PRINTER_CHECK_PAPER_STATUS | `True` | `bool` If enabled, printer paper status is taken into account when checking if printer has adequate amount of paper available before printing. Otherwise, messages will be sent to be printed no matter the paper status |
-| ALLOWED_HOSTS | `localhost` | `string` Comma separated list (e.g., `IP1,IP2`). If not hosted on `localhost`, make sure to include your server IP (use `127.0.0.1` + optionally, your server IP for Docker hosting) |
-| CORS_ALLOWED_ORIGINS | `http://localhost:4200` | `string` Comma separated list (e.g., `IP1,IP2`). `http://localhost:4200` is default `poc-print-ui` IP and port. If not hosted on `localhost`, make sure to include your IP |
+| POC_PRINT_HUB_PRINTER_CHECK_PAPER_STATUS | `True` | `bool` If enabled, the printer's paper status is taken into account when checking for an adequate amount of paper before printing. Otherwise, messages will be sent to be printed regardless of the paper status |
+| ALLOWED_HOSTS | `localhost` | `string` Comma-separated list (e.g., `IP1,IP2`). If not hosted on `localhost`, ensure your server's IP is included (use `127.0.0.1` + optionally, your server IP for Docker hosting) |
+| CORS_ALLOWED_ORIGINS | `http://localhost:4200` | `string` Comma-separated list (e.g., `IP1,IP2`). `http://localhost:4200` is the default `poc-print-ui` IP and port. If not hosted on `localhost`, ensure your IP is included |
 
 #### How to generate a custom SECRET_KEY value
 
@@ -101,7 +101,7 @@ python -c "import os; import base64; new_key = base64.urlsafe_b64encode(os.urand
 | ENV_API_URL | - | `http://127.0.0.1:8000/api` for running locally |
 | ENV_TENANT_ID_HEADER | - | Has to be `Pph-Tenant-Id` |
 | ENV_TENANT_TOKEN_HEADER | - | Has to be `Pph-Tenant-Token` |
-| ENV_MESSAGE_ORIGIN_NAME | - | Defines message origin that is going to be presented as part of printed messages. For example, `print-hub-web-ui` |
+| ENV_MESSAGE_ORIGIN_NAME | - | Defines message origin that will be presented as part of printed messages. For example, `print-hub-web-ui` |
 
 ## poc-print-cli
 
@@ -119,7 +119,7 @@ raise NotImplementedError("Coming soon...")
 
 ### Deployment
 
-The following instructions were tested against a `Debian "bookworm"` server instance, but should work for `Debian`-based distros with no changes and for `MacOS` and `Windows` with minor adjustments.
+The following instructions were tested against a `Debian "bookworm"` server instance, but should work for `Debian`-based distros without changes and for `MacOS` and `Windows` with minor adjustments.
 
 #### Pure Docker
 
@@ -142,7 +142,7 @@ Navigate to [docker-compose.yml](src/docker-compose.yml) and run:
 sudo docker compose build
 ```
 
-Now, in the `Portainer` interface navigate to Stacks and deploy a new one with the following configuration via the `Web Editor` after populating values for the environment variables:
+Now, in the `Portainer` interface navigate to Stacks and deploy a new stack with the following configuration via the `Web Editor` after populating environment variable values:
 
 ```yml
 services:
@@ -181,8 +181,8 @@ services:
       - DATABASES_POSTGRESQL_USER=
       - DATABASES_POSTGRESQL_PASSWORD=
       - DATABASES_POSTGRESQL_HOST=
-      - DJANGO_ALLOWED_HOSTS=127.0.0.1	            # comma separated for multiple
-      - CORS_ALLOWED_ORIGINS=http://localhost:8080	# comma separated for multiple
+      - DJANGO_ALLOWED_HOSTS=127.0.0.1	            # comma-separated for multiple
+      - CORS_ALLOWED_ORIGINS=http://localhost:8080	# comma-separated for multiple
   celery_beat:
     image: printhub-celery-beat:latest
     command: "celery -A pocprintapi beat -l info"
@@ -214,7 +214,7 @@ Navigate to:
 ### Admin user creation
 
 To access `poc-print-api` Admin page, we have to create a `superuser`:
-- Attach to `poc-print-api` Docker container terminal.
+- Attach to the `poc-print-api` Docker container terminal.
 - Create a `superuser` following [the official guide](https://docs.djangoproject.com/en/1.8/intro/tutorial02/#creating-an-admin-user).
 
 ### Adding tenant auth configuration
@@ -222,15 +222,15 @@ To access `poc-print-api` Admin page, we have to create a `superuser`:
 Steps:
 - Navigate to `http://127.0.0.1:8000/admin/` to access the Web-API Admin page.
 - Login using `superuser` credentials.
-- Click to add new tenant auth config:
+- Click to add a new tenant auth configuration:
 
 ![Adding tenant auth config](assets/admin-page-add-tenant.png)
 
-- Populate `Tenant id` and `Token`, choose `Role`, click SAVE: 
+- Populate `Tenant id` and `Token`, choose `Role`, then click SAVE: 
 
 ![Saving tenant auth config](assets/admin-page-save-tenant.png)
 
-_Note: on SAVE the `Token` value is hashed before being saved to the database, therefore it changes on the UI as well._ 
+_Note: Upon saving, the `Token` value is hashed before being saved to the database, therefore, it changes on the UI as well._ 
 
 ### Printer configuration 
 
