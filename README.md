@@ -20,7 +20,7 @@ Web-API + Admin page, enables print message publishing / processing, tenant auth
 | `POST` | `api/printer/cut` | ADMIN | Cuts paper (feeds `n*6` times, then cuts) |
 | `POST` | `api/tenant/role` | ADMIN, USER | Returns tenant role: `tenantId`, `role` |
 
-Request examples [here](src/api/pocprintapi_queries/queries.md). Make sure to create test tenant entries before using the queries (best done via the `Admin` page, instructions below):
+Request examples [here](src/api/pocprintapi_queries/queries.md). Notice that requests there include the following headers: `PPH-Tenant-Id` and `PPH-Tenant-Token`. Those are required for tenant based auth, if it is enabled (`POC_PRINT_HUB_TENANT_AUTH_ENABLED:True`). Make sure to create test tenant entries before using the queries (best done via the `Admin` page, instructions below):
 
 | Tenant Id | Tenant Token | Role |
 |---|---|---|
@@ -208,6 +208,34 @@ services:
 Navigate to:
 - `http://127.0.0.1:8000/admin/` to access the Web-API Admin page.
 - `http://127.0.0.1:8080/` to access the PrintHub UI page.
+
+## Extra steps
+
+### Admin user creation
+
+To access `poc-print-api` Admin page we have to create a `superuser`:
+- Attach to `poc-print-api` Docker container terminal.
+- Create a `superuser` following [the official guide](https://docs.djangoproject.com/en/1.8/intro/tutorial02/#creating-an-admin-user).
+
+### Adding tenant auth configuration
+
+Steps:
+- Navigate to `http://127.0.0.1:8000/admin/` to access the Web-API Admin page.
+- Login using `superuser` credentials.
+- Click to add new tenant auth config:
+
+![Adding tenant auth config](assets/admin-page-add-tenant.png)
+
+- Populate `Tenant id` and `Token`, choose `Role`, click SAVE: 
+
+![Saving tenant auth config](assets/admin-page-save-tenant.png)
+
+_Note: on SAVE the `Token` value is hashed before being saved to the database, therefore it changes on the UI as well._ 
+
+### Printer configuration 
+
+It is important for a printer to always be accesible via the same IP address. We can achieve that by assighning a static IP or a DHCP reservation. The process might differ vendor to vendor. Here is a guide for [Rongta RP326](https://www.rongtatech.com/blog/80mm-thermal-receipt-printer-operation-manual-for-changing-parameters-via-browser_b74).
+
 
 ## Attribution
 
