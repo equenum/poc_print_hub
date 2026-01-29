@@ -1,12 +1,12 @@
 # poc_print_hub
 
-Simple, yet robust selfhosted solution for delivering messages / notifications via a network printer. Intended primary use is, but not limited to, serving as a notification sink for a homelab infrastructure, recieving and printing notifications in the privacy of a local network.
+Simple, yet robust self-hosted solution for delivering messages/notifications via a network printer. Intended primary use is, but not limited to, serving as a notification sink for a homelab infrastructure, receiving and printing notifications in the privacy of a local network.
 
 ![Solution architecture diagram](assets/solution_architecture_diagram.png)
 
 ## poc-print-api
 
-Web-API + Admin page, enables print message publishing / processing, tenant authentication, as well as printer communication via the network and printer functions control (get status, feed paper, cut paper, etc.).
+Web-API + Admin page, enables print message publishing/processing, tenant authentication, as well as printer communication via the network and printer function control (get status, feed paper, cut paper, etc.).
 
 ### Endpoints
 
@@ -20,7 +20,7 @@ Web-API + Admin page, enables print message publishing / processing, tenant auth
 | `POST` | `api/printer/cut` | ADMIN | Cuts paper (feeds `n*6` times, then cuts) |
 | `POST` | `api/tenant/role` | ADMIN, USER | Returns tenant role: `tenantId`, `role` |
 
-Request examples [here](src/api/pocprintapi_queries/queries.md). Notice that requests there include the following headers: `PPH-Tenant-Id` and `PPH-Tenant-Token`. Those are required for tenant based auth, if it is enabled (`POC_PRINT_HUB_TENANT_AUTH_ENABLED:True`). Make sure to create test tenant entries before using the queries (best done via the `Admin` page, instructions below):
+Request examples [here](src/api/pocprintapi_queries/queries.md). Notice that requests there include the following headers: `PPH-Tenant-Id` and `PPH-Tenant-Token`. These are required for tenant-based auth, if it is enabled (`POC_PRINT_HUB_TENANT_AUTH_ENABLED:True`). Make sure to create test tenant entries before using the queries (best done via the `Admin` page, instructions below):
 
 | Tenant Id | Tenant Token | Role |
 |---|---|---|
@@ -44,7 +44,7 @@ Request examples [here](src/api/pocprintapi_queries/queries.md). Notice that req
 |---|---|---|
 | SECRET_KEY | `by-using-default-secrets-I-am-running-away-from-my-responsibilities-and-it-feels-good` | `string` Make sure to generate your own, instructions below |
 | DEBUG | `False` | `bool` |
-| POC_PRINT_HUB_TENANT_AUTH_ENABLED | `True` | `bool` If enabled, consider setting up a super user for convinience. Instructions on that and how to use the auth below |
+| POC_PRINT_HUB_TENANT_AUTH_ENABLED | `True` | `bool` If enabled, consider setting up a super user for convenience. Instructions on that and how to use the auth below |
 | POC_PRINT_HUB_RABBIT_MQ_HOST | - | `string` |
 | POC_PRINT_HUB_RABBIT_MQ_USERNAME | - | `string` |
 | POC_PRINT_HUB_RABBIT_MQ_PASSWORD | - | `string` |
@@ -60,8 +60,8 @@ Request examples [here](src/api/pocprintapi_queries/queries.md). Notice that req
 | POC_PRINT_HUB_PRINTER_HOST | - | `string` |
 | POC_PRINT_HUB_PRINTER_MESSAGE_SEPARATOR | `----------` | `string` Defines a piece of text that separates messages on paper |
 | POC_PRINT_HUB_PRINTER_CHECK_PAPER_STATUS | `True` | `bool` If enabled, printer paper status is taken into account when checking if printer has adequate amount of paper available before printing. Otherwise, messages will be sent to be printed no matter the paper status |
-| ALLOWED_HOSTS | `localhost` | `string` Comma separated list (e.g., `IP1,IP2`). If hosted not on `localhost`, make sure to include your server IP (use `127.0.0.1` + optionally, your server IP for Docker hosting) |
-| CORS_ALLOWED_ORIGINS | `http://localhost:4200` | `string` Comma separated list (e.g., `IP1,IP2`). `http://localhost:4200` is default `poc-print-ui` IP and port. If hosted not on `localhost`, make sure to include your IP |
+| ALLOWED_HOSTS | `localhost` | `string` Comma separated list (e.g., `IP1,IP2`). If not hosted on `localhost`, make sure to include your server IP (use `127.0.0.1` + optionally, your server IP for Docker hosting) |
+| CORS_ALLOWED_ORIGINS | `http://localhost:4200` | `string` Comma separated list (e.g., `IP1,IP2`). `http://localhost:4200` is default `poc-print-ui` IP and port. If not hosted on `localhost`, make sure to include your IP |
 
 #### How to generate a custom SECRET_KEY value
 
@@ -83,7 +83,7 @@ python -c "import os; import base64; new_key = base64.urlsafe_b64encode(os.urand
 
 ## poc-print-ui
 
-![PrintHub Web IU](assets/poc-print-ui.png)
+![PrintHub Web UI](assets/poc-print-ui.png)
 
 ### Tech stack
 
@@ -106,20 +106,20 @@ python -c "import os; import base64; new_key = base64.urlsafe_b64encode(os.urand
 ## poc-print-cli
 
 ```python
-raise NotImplementedException("Coming soon...")
+raise NotImplementedError("Coming soon...")
 ```
 
 ## Deployment instructions
 
 ### Prerequisites
 - [Docker](https://docs.docker.com/engine/install/) + [Docker Compose](https://docs.docker.com/compose/install/).
-- [PostgreSQL](https://www.postgresql.org/download/) instance: if hosted not on `localhost`, make sure to configure the engine to accept external requests.
+- [PostgreSQL](https://www.postgresql.org/download/) instance: if not hosted on `localhost`, make sure to configure the engine to accept external requests.
 - [RabbitMQ](https://www.rabbitmq.com/docs/download) cluster.
 - LAN-enabled POC Thermal Printer: ideally with a static IP; this solution was developed against and tested on [Rongta RP326](https://www.rongtatech.com/rp326-80mm-thermal-printer-for-receipt-printing_p68.html); the list of supported makes and models [here](https://python-escpos.readthedocs.io/en/latest/printer_profiles/available-profiles.html).
 
 ### Deployment
 
-The following instructions were tested against a `Debian “bookworm"` server instance, but should work for `Debian`-based distros with no changes and for `MacOS` and `Windows` with minor adjustments.
+The following instructions were tested against a `Debian "bookworm"` server instance, but should work for `Debian`-based distros with no changes and for `MacOS` and `Windows` with minor adjustments.
 
 #### Pure Docker
 
@@ -142,7 +142,7 @@ Navigate to [docker-compose.yml](src/docker-compose.yml) and run:
 sudo docker compose build
 ```
 
-Now, in `Portainer` interface navigate to Stacks and deploy a new one with the following configuration via the `Web Editor` after populating values for the environment variables:
+Now, in the `Portainer` interface navigate to Stacks and deploy a new one with the following configuration via the `Web Editor` after populating values for the environment variables:
 
 ```yml
 services:
@@ -213,7 +213,7 @@ Navigate to:
 
 ### Admin user creation
 
-To access `poc-print-api` Admin page we have to create a `superuser`:
+To access `poc-print-api` Admin page, we have to create a `superuser`:
 - Attach to `poc-print-api` Docker container terminal.
 - Create a `superuser` following [the official guide](https://docs.djangoproject.com/en/1.8/intro/tutorial02/#creating-an-admin-user).
 
@@ -234,7 +234,7 @@ _Note: on SAVE the `Token` value is hashed before being saved to the database, t
 
 ### Printer configuration 
 
-It is important for a printer to always be accesible via the same IP address. We can achieve that by assighning a static IP or a DHCP reservation. The process might differ vendor to vendor. Here is a guide for [Rongta RP326](https://www.rongtatech.com/blog/80mm-thermal-receipt-printer-operation-manual-for-changing-parameters-via-browser_b74).
+It is important for a printer to always be accessible via the same IP address. We can achieve that by assigning a static IP or a DHCP reservation. The process might differ from vendor to vendor. Here is a guide for [Rongta RP326](https://www.rongtatech.com/blog/80mm-thermal-receipt-printer-operation-manual-for-changing-parameters-via-browser_b74).
 
 
 ## Attribution
