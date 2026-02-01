@@ -15,7 +15,7 @@ class PrintService:
     PRINTER_NAME: str = "RP326"
 
     def publish(self, request_body: bytes) -> Response:
-        """Publishes notification message to RabbitMQ"""
+        """Publishes notification messages to RabbitMQ"""
         body_dict = json.loads(request_body)
 
         message = NotificationMessage.from_json(body_dict)
@@ -54,7 +54,7 @@ class PrintService:
         )
     
     def status(self) -> Response:
-        """Fetches printer status: online, paper status"""
+        """Fetches printer status: name, online, paper status"""
         try:
             net_print = printer.Network(settings.POC_PRINT_HUB_PRINTER_HOST)
 
@@ -95,7 +95,7 @@ class PrintService:
         )
 
     def feed(self, n_times: str) -> Response:
-        """Feeds printer paper *n* times. n should be 5 <= x <= 255"""
+        """Feeds printer paper *n* times (5 <= n <= 255)"""
         try:
             n_times_int = int(n_times)
         except ValueError:
@@ -111,7 +111,7 @@ class PrintService:
             return Response(
                 {
                     "message": "Invalid request",
-                    "errors": f"'nTimes' out of range: should be {self.MIN_FEED_N} <= x <= {self.MAX_FEED_N}"
+                    "errors": f"'nTimes' out of range: should be {self.MIN_FEED_N} <= n <= {self.MAX_FEED_N}"
                 }, 
                 status.HTTP_400_BAD_REQUEST
             )
@@ -197,7 +197,7 @@ class PrintService:
                 except Exception as ex:
                     print(
                         f"Failed to process {settings.POC_PRINT_HUB_RABBIT_MQ_QUEUE_NAME} queue message: {ex}. "\
-                        f"Delivery properties: {method_frame}. Publishing to error queue."
+                        f"Delivery properties: {method_frame}. Publishing to the error queue."
                     )
                     channel.basic_publish(
                         exchange="",
@@ -223,7 +223,7 @@ class PrintService:
                 connection.close()
 
     def republish_dead_queue_messages(self) -> Response:
-        """Republishes all messages from the error to print RabbitMQ queue"""
+        """Republishes all messages from the error to the print RabbitMQ queue"""
         parameters = self._build_connection_parameters()
 
         try:
@@ -267,7 +267,7 @@ class PrintService:
                 except Exception as ex:
                     print(
                         f"Failed to process {settings.POC_PRINT_HUB_RABBIT_MQ_DEAD_QUEUE_NAME} queue message: {ex}. "\
-                        f"Delivery properties: {method_frame}. Republishing to error queue."
+                        f"Delivery properties: {method_frame}. Republishing to the error queue."
                     )
                     failed_messages.append(json.dumps(json.loads(body)))
 
