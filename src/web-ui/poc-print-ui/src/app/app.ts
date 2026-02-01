@@ -41,7 +41,7 @@ export class App {
   messageTitle = signal<string>('');
   messageBody = signal<string>('');
 
-  // tenant auth
+  // tenant auth status
   isTenantAuthenticated = signal<boolean>(false);
   isTenantAuthInProgress = signal<boolean>(false);
 
@@ -59,7 +59,7 @@ export class App {
   printerStatusData: PrinterStatusData | undefined;
   tenantData: TenantData | undefined;
 
-  // command statuses
+  // command status
   isCutPaperInProgress = signal<boolean>(false);
   isFeedPaperInProgress = signal<boolean>(false);
   isPublishMessageInProgress = signal<boolean>(false);
