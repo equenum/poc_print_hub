@@ -38,7 +38,7 @@ class NotificationMessage:
             json_dict.get("id"),
             json_dict.get("title"),
             json_dict.get("body"),
-            json_dict.get("bodyType"),
+            json_dict.get("bodytype"),
             json_dict.get("origin"),
             json_dict.get("timestamp")
         )
@@ -48,7 +48,7 @@ class NotificationMessage:
             "id": str(self.id),
             "title": self.title,
             "body": self.body,
-            "bodyType": self.body_type,
+            "bodytype": self.body_type,
             "origin": self.origin,
             "timestamp": str(self.timestamp)
         }

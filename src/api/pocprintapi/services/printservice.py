@@ -16,7 +16,8 @@ class PrintService:
 
     def publish(self, request_body: bytes) -> Response:
         """Publishes notification messages to RabbitMQ"""
-        body_dict = json.loads(request_body)
+        initial_body_dict = json.loads(request_body)
+        body_dict = {k.lower(): v for k, v in initial_body_dict.items()}
 
         message = NotificationMessage.from_json(body_dict)
         message.id = uuid.uuid4()
